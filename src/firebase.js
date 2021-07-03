@@ -45,13 +45,29 @@ export function useQueue() {
 
     onUnmounted(unsubscribe);
 
-    const sendQueueItem = text => {
+    // TODO: Write a validation that work
+    async function validateQueue(no) {
+        await queueItemsCollection
+            .where("no", "==", no)
+            .get()
+            .then(querySnapshot => {
+                return querySnapshot.size == 0;
+            });
+    }
+
+    const issueQueueNo = async val => {
         const queue = {
-            no: text,
+            no: val,
             stage: 0,
         };
-        queueItemsCollection.add(queue);
+
+        // This is where validation happens
+        // IF IT DID WORK
+        if (validateQueue(val)) {
+            queueItemsCollection.add(queue);
+            return queue;
+        } else return false;
     };
 
-    return { queueItems, sendQueueItem };
+    return { queueItems, issueQueueNo };
 }

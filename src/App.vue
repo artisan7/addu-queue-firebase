@@ -1,29 +1,30 @@
 <template>
-<<<<<<< HEAD
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <example />
+    <div id="nav">
+        <router-link to="/registration">Registration</router-link> |
+        <router-link to="/about">About</router-link>
+    </div>
+    <router-view />
 </template>
 
-<script>
-import Example from "./components/Example.vue";
-=======
-  <Registration />
-</template>
-
-<script>
-import Registration from './components/Registration.vue'
->>>>>>> 98cc042133068869ae8042b3379b088a4dd7ae2a
-
-export default {
-  name: "App",
-  components: {
-<<<<<<< HEAD
-    Example,
-  },
-};
-=======
-    Registration
-  }
+<style>
+#app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
 }
->>>>>>> 98cc042133068869ae8042b3379b088a4dd7ae2a
-</script>
+
+#nav {
+    padding: 30px;
+}
+
+#nav a {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+#nav a.router-link-exact-active {
+    color: #42b983;
+}
+</style>
