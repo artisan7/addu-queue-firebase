@@ -1,26 +1,29 @@
 <template>
+<<<<<<< HEAD
   <img alt="Vue logo" src="./assets/logo.png" />
   <example />
 </template>
 
 <script>
 import Example from "./components/Example.vue";
+=======
+  <Registration />
+</template>
+
+<script>
+import Registration from './components/Registration.vue'
+>>>>>>> 98cc042133068869ae8042b3379b088a4dd7ae2a
 
 export default {
   name: "App",
   components: {
+<<<<<<< HEAD
     Example,
   },
 };
-</script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+=======
+    Registration
+  }
 }
-</style>
+>>>>>>> 98cc042133068869ae8042b3379b088a4dd7ae2a
+</script>
