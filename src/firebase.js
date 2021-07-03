@@ -26,7 +26,7 @@ export function useAuth() {
         await auth.signInWithPopup(googleProvider);
     };
 
-    const signOUt = () => auth.signOut();
+    const signOut = () => auth.signOut();
 
     return { user, isLogin, signIn, signOut };
 }
@@ -35,10 +35,10 @@ const firestore = firebase.firestore();
 const queueItemsCollection = firestore.collection("queueItem");
 const queueItemsQuery = queueItemsCollection.orderBy("no", "asc");
 
-export function useQueueItems() {
+export function useQueue() {
     const queueItems = ref([]);
     const unsubscribe = queueItemsQuery.onSnapshot(snapshot => {
-        queueItems.value = snapsht.docs
+        queueItems.value = snapshot.docs
             .map(doc => ({ id: doc.id, ...doc.data() }))
             .reverse();
     });
