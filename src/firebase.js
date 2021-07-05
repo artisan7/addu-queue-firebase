@@ -4,70 +4,97 @@ import "firebase/firestore";
 
 import { ref, onUnmounted, computed } from "vue";
 
-firebase.initializeApp({
-    apiKey: "AIzaSyCgaJjOiWB4kq9YyiB29dfbBQWzUyMabZo",
-    authDomain: "addu-queue-firebase.firebaseapp.com",
-    projectId: "addu-queue-firebase",
-    storageBucket: "addu-queue-firebase.appspot.com",
-    messagingSenderId: "241997341660",
-    appId: "1:241997341660:web:eeb4ad2f586983ec506519",
-});
+// Your web app's Firebase configuration
+var firebaseConfig = {
+  apiKey: "AIzaSyB7_aDpN3NAqRoIKCs7UDMBsE7BFFHZQrE",
+  authDomain: "addu-vaccination-queue.firebaseapp.com",
+  projectId: "addu-vaccination-queue",
+  storageBucket: "addu-vaccination-queue.appspot.com",
+  messagingSenderId: "671678336581",
+  appId: "1:671678336581:web:364ad6f86c6802b0c1dd2c",
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 
 export function useAuth() {
-    const user = ref(null);
-    const unsubscribe = auth.onAuthStateChanged(_user => (user.value = _user));
-    onUnmounted(unsubscribe);
-    const isLogin = computed(() => user.value !== null);
+  const user = ref(null);
+  const unsubscribe = auth.onAuthStateChanged((_user) => (user.value = _user));
+  onUnmounted(unsubscribe);
+  const isLogin = computed(() => user.value !== null);
 
-    const signIn = async () => {
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-        await auth.signInWithPopup(googleProvider);
-    };
+  const signIn = async () => {
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(googleProvider);
+  };
 
-    const signOut = () => auth.signOut();
+  const signOut = () => auth.signOut();
 
-    return { user, isLogin, signIn, signOut };
+  return { user, isLogin, signIn, signOut };
 }
 
 const firestore = firebase.firestore();
-const queueItemsCollection = firestore.collection("queueItem");
-const queueItemsQuery = queueItemsCollection.orderBy("no", "asc");
+const queueNumCollection = firestore.collection("queue");
+const queueItemsQuery = queueNumCollection.orderBy("num", "asc");
+var queueCounterRef = firestore.collection("counter").doc("queueNum");
 
 export function useQueue() {
-    const queueItems = ref([]);
-    const unsubscribe = queueItemsQuery.onSnapshot(snapshot => {
-        queueItems.value = snapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() }))
-            .reverse();
+  /**
+   * Gets the queue items as a VueJS ref
+   * @date 2021-07-05
+   * @returns ref
+   */
+  const queueItems = ref([]);
+
+  //   Watch the queue items
+  // Also, hook for cleanup when component is unmounted
+  const unsubscribe = queueItemsQuery.onSnapshot((snapshot) => {
+    queueItems.value = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .reverse();
+  });
+
+  onUnmounted(unsubscribe);
+
+  /**
+   * Issue Queue No
+   * Uses transactions to get the current queue no.
+   * @date 2021-07-05
+   * @returns Number
+   */
+  const issueQueueNo = async () => {
+    // Return value to indicate the number to be issued
+    var newQueueNo;
+
+    // Transaction start
+    await firestore.runTransaction((transaction) => {
+      // Reads the queue counter in the counter collection
+      return transaction.get(queueCounterRef).then((counterRef) => {
+        if (!counterRef) throw "Document does not exist";
+
+        // Get the next count
+        newQueueNo = counterRef.data().count + 1;
+
+        // Create a new document in the queue number collection
+        var queueNumRef = queueNumCollection.doc();
+
+        // Increment the counter
+        transaction.update(queueCounterRef, {
+          count: newQueueNo,
+        });
+
+        // Save the new queue no
+        transaction.set(queueNumRef, {
+          num: newQueueNo,
+          stage: 0,
+        });
+      });
     });
 
-    onUnmounted(unsubscribe);
+    return newQueueNo;
+  };
 
-    // TODO: Write a validation that work
-    async function validateQueue(no) {
-        await queueItemsCollection
-            .where("no", "==", no)
-            .get()
-            .then(querySnapshot => {
-                return querySnapshot.size == 0;
-            });
-    }
-
-    const issueQueueNo = async val => {
-        const queue = {
-            no: val,
-            stage: 0,
-        };
-
-        // This is where validation happens
-        // IF IT DID WORK
-        if (validateQueue(val)) {
-            queueItemsCollection.add(queue);
-            return queue;
-        } else return false;
-    };
-
-    return { queueItems, issueQueueNo };
+  return { queueItems, issueQueueNo };
 }
