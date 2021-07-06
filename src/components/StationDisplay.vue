@@ -5,14 +5,18 @@ THAT ARE CURRENTLY BEING SERVED IN THE STATION -->
   <div>
     <h1 v-html="stationName"></h1>
     <h2>Currently Serving #s</h2>
-    <div v-for="item in serveNos" :key="item">
+    <!-- <div v-for="item in serveNums" :key="item">
+      {{ item.num }}
+    </div> -->
+    <div v-for="item in displayNums" :key="item" :class="{ new: item.new }">
       {{ item.num }}
     </div>
   </div>
 </template>
 
 <script>
-// import { ref } from "vue";
+import { watch } from "@vue/runtime-core";
+import { ref } from "vue";
 import { useQueue } from "../firebase";
 
 export default {
@@ -20,9 +24,32 @@ export default {
   props: { stationName: String, stageId: Number },
   setup(props) {
     const { stationDisplayQueueNums } = useQueue();
-    const serveNos = stationDisplayQueueNums(props.stageId);
+    var serveNums = stationDisplayQueueNums(props.stageId);
+    const displayNums = ref(null);
 
-    return { serveNos };
+    watch(serveNums, (newValue, oldValue) => {
+      //   const newValueIds = newValue.map((val) => val.id);
+      const oldValueIds = oldValue.map((val) => val.id);
+
+      displayNums.value = newValue.slice(0);
+
+      displayNums.value
+        .filter((val) => !oldValueIds.includes(val.id))
+        .forEach((val) => {
+          val.new = true;
+          setInterval(() => {
+            val.new = false;
+          }, 5000);
+        });
+    });
+
+    return { serveNums, displayNums };
   },
 };
 </script>
+
+<style scoped>
+.new {
+  color: red;
+}
+</style>
