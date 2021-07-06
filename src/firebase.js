@@ -48,7 +48,7 @@ export function useQueue() {
    */
   const queueItems = ref([]);
 
-  //   Watch the queue items
+  // Watch the queue items
   // Also, hook for cleanup when component is unmounted
   const unsubscribe = queueItemsQuery.onSnapshot((snapshot) => {
     queueItems.value = snapshot.docs
@@ -96,5 +96,69 @@ export function useQueue() {
     return newQueueNo;
   };
 
-  return { queueItems, issueQueueNo };
+  // Function Definition for Station Control
+  const callForNextNum = async (stage) => {
+    var nextQueueNum;
+
+    // .get()
+    // .then((snapshot) => {
+    //   snapshot.forEach((doc) => {
+    //     console.log(doc.data());
+    //   });
+    // });
+
+    try {
+      await firestore.runTransaction(async (transaction) => {
+        // Warning:
+        // What lies before you is very stupid very hacky code
+        // TODO: MAKE THIS BETTER
+        // console.log("BEFORE QUERY");
+
+        // Get the first possible queue number with the appropriate stage
+        // Theoretically, this should be enough, but no
+        // Firestore is too picky
+        let query = await queueItemsQuery
+          .where("stage", "==", stage)
+          .limit(1)
+          .get();
+
+        // If query is empty AKA No one w/ the stage is found,
+        // Throw an error
+        if (query.empty) throw "No one is in the waiting list.";
+
+        // Get the document reference from the collection...
+        // With the document id we get from the query
+        var doc = queueNumCollection.doc(query.docs[0].id);
+
+        // console.log("before transaction", query, doc);
+        // Finally do the transaction.
+        return transaction.get(doc).then((snapshot) => {
+          // More error to throw
+          if (!snapshot) throw "Document does not exist";
+
+          // Get the next queue num object
+          nextQueueNum = { id: query.docs[0].id, ...snapshot.data() };
+
+          // Increment the stage
+          const nextStage = snapshot.data().stage + 1;
+
+          // Update the table
+          transaction.update(doc, {
+            stage: nextStage,
+          });
+        });
+      });
+    } catch (err) {
+      // Return the error
+      return Promise.reject(err);
+    }
+
+    return nextQueueNum;
+  };
+
+  const finishCurrentNum = async (queueId) => {
+    console.log(queueId);
+  };
+
+  return { queueItems, issueQueueNo, callForNextNum, finishCurrentNum };
 }
