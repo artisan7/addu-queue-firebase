@@ -1,10 +1,28 @@
 <template>
   <div id="nav">
     <router-link to="/issue">Issue Num</router-link> |
+    <span v-for="(station, key) in stations" :key="station">
+      <router-link :to="`/station/${station}`"> {{ key }} Controls</router-link>
+      |
+      <router-link :to="`/display/${station}`">Display {{ key }}</router-link> |
+    </span>
     <router-link to="/about">About</router-link>
   </div>
   <router-view />
 </template>
+
+<script>
+export default {
+  data: () => ({
+    stations: {
+      Registration: "registration",
+      Screening: "screening",
+      Vitals: "vitals",
+      Vaccination: "vaccination",
+    },
+  }),
+};
+</script>
 
 <style>
 #app {

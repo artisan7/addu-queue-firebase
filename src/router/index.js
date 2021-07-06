@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Registration from "../views/Registration.vue";
+import Issue from "../views/Issue.vue";
 import Station from "../views/Station.vue";
+import Display from "../views/Display.vue";
 
 const routes = [
   {
     path: "/issue",
     name: "Issue",
-    component: Registration,
+    component: Issue,
   },
   {
     path: "/about",
@@ -21,6 +22,11 @@ const routes = [
     path: "/station/:station",
     name: "Station Control",
     component: Station,
+  },
+  {
+    path: "/display/:station",
+    name: "Station Display",
+    component: Display,
   },
 ];
 

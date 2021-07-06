@@ -165,5 +165,29 @@ export function useQueue() {
     return true;
   };
 
-  return { queueItems, issueQueueNo, callForNextNum, finishCurrentNum };
+  const stationDisplayQueueNums = (stage) => {
+    const displayQueueNums = ref([]);
+
+    // Watch the queue items
+    // Also, hook for cleanup when component is unmounted
+    const displayUnsuscribe = queueItemsQuery
+      .where("stage", "==", stage)
+      .onSnapshot((snapshot) => {
+        displayQueueNums.value = snapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .reverse();
+      });
+
+    onUnmounted(displayUnsuscribe);
+
+    return displayQueueNums;
+  };
+
+  return {
+    queueItems,
+    issueQueueNo,
+    callForNextNum,
+    finishCurrentNum,
+    stationDisplayQueueNums,
+  };
 }
