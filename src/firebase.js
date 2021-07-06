@@ -115,7 +115,7 @@ export function useQueue() {
         // console.log("BEFORE QUERY");
 
         // Get the first possible queue number with the appropriate stage
-        // Theoretically, this should be enough, but no
+        // Theoretically, this should be enough, but noooooo
         // Firestore is too picky
         let query = await queueItemsQuery
           .where("stage", "==", stage)
@@ -157,7 +157,12 @@ export function useQueue() {
   };
 
   const finishCurrentNum = async (queueId) => {
-    console.log(queueId);
+    if (queueId === null || queueId === undefined) return;
+    const increment = firebase.firestore.FieldValue.increment(1);
+    await queueNumCollection.doc(queueId).update({
+      stage: increment,
+    });
+    return true;
   };
 
   return { queueItems, issueQueueNo, callForNextNum, finishCurrentNum };

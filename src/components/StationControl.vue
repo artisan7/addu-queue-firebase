@@ -3,16 +3,21 @@
     <h2>Currently Serving #</h2>
     <h1 v-if="this.currentlyServing === null">None</h1>
     <h1 v-else>{{ currentlyServing.num }}</h1>
-    <div>
-      <button @click="callNext">CALL NEXT #</button>
-      <h2 v-if="this.currentlyServing">
+    <div v-if="this.currentlyServing">
+      <button :disabled="processing" @click="finishAndCallNext">
+        CALL NEXT #
+      </button>
+      <h2>
         Finish current patient and call for the next #
       </h2>
-      <h2 v-else>Call for the next #</h2>
     </div>
-    <div>
-      <button @click="finishCurrent">FINISH</button>
-      <h2 v-if="this.currentlyServing">
+    <div v-else>
+      <button :disabled="processing" @click="callNext">CALL NEXT #</button>
+      <h2>Call for the next #</h2>
+    </div>
+    <div v-if="this.currentlyServing">
+      <button :disabled="processing" @click="finishCurrent">FINISH</button>
+      <h2>
         Finish with current patient
       </h2>
     </div>
@@ -35,28 +40,47 @@ export default {
     },
   },
   setup(props) {
-    const { callForNextNum } = useQueue();
+    const { callForNextNum, finishCurrentNum } = useQueue();
     const currentlyServing = ref(null);
+    const processing = ref(false);
 
-    console.log(props);
-
-    const finishCurrent = () => {
-      console.log("FINISH SERVE");
+    const finishCurrent = async () => {
+      processing.value = true;
+      await finishCurrentNum(currentlyServing.value.id);
+      processing.value = false;
+      currentlyServing.value = null;
     };
 
-    const callNext = () => {
-      console.log("CALLING FOR NEXT", props.stageId);
-      callForNextNum(props.stageId)
-        .then((queueNum) => (currentlyServing.value = queueNum))
+    const callNext = async () => {
+      //   console.log("CALLING FOR NEXT", props.stageId);
+      processing.value = true;
+      await callForNextNum(props.stageId)
+        .then((queueNum) => {
+          currentlyServing.value = queueNum;
+          processing.value = false;
+        })
         .catch((err) => {
           console.log("Error: ", err);
+          processing.value = false;
         });
+    };
+
+    const finishAndCallNext = async () => {
+      await finishCurrent();
+      await callNext();
     };
 
     return {
       currentlyServing,
       finishCurrent,
       callNext,
+      processing,
+      finishAndCallNext,
+    };
+  },
+  created() {
+    window.onbeforeunload = () => {
+      alert("HELLO");
     };
   },
 };
