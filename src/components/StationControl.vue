@@ -26,7 +26,7 @@
 
 <script>
 import { watch } from "@vue/runtime-core";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useQueue } from "../firebase";
 import { useRoute } from "vue-router";
 
@@ -50,6 +50,17 @@ export default {
     // Data
     const currentlyServing = ref(null);
     const processing = ref(false);
+    // const mapStage = {
+    //   registration: 0,
+    //   screening: 2,
+    //   vitals: 4,
+    //   vaccination: 6,
+    // };
+
+    // Computed
+    const localStorageName = computed(() => {
+      return `ateneoQueueIdStation${route.params.station}`;
+    });
 
     // Methods
 
@@ -62,7 +73,7 @@ export default {
       processing.value = false;
       currentlyServing.value = null;
 
-      localStorage.setItem("ateneoQueueId", null);
+      localStorage.setItem(localStorageName.value, null);
     };
 
     // Call for the next queue number
@@ -73,13 +84,13 @@ export default {
       await callForNextNum(props.stageId)
         .then((queueNum) => {
           currentlyServing.value = queueNum;
-          localStorage.setItem("ateneoQueueId", queueNum.id);
+          localStorage.setItem(localStorageName.value, queueNum.id);
           processing.value = false;
         })
         .catch((err) => {
           // TODO: Create error handling
           console.log("Error: ", err);
-          localStorage.setItem("ateneoQueueId", null);
+          localStorage.setItem(localStorageName.value, null);
           processing.value = false;
         });
     };
@@ -92,16 +103,17 @@ export default {
 
     // Check to see if there's still a number not yet finished
     function checkLocalStorage() {
-      if (localStorage.getItem("ateneoQueueId"))
-        getQueueNumberById(localStorage.getItem("ateneoQueueId")).then(
+      if (localStorage.getItem(localStorageName.value) != "null")
+        getQueueNumberById(localStorage.getItem(localStorageName.value)).then(
           (data) => {
             if (data) {
-              if (data.stage == props.stageId + 1)
-                currentlyServing.value = data;
-              else currentlyServing.value = null;
+              currentlyServing.value = data;
             }
           }
         );
+      else {
+        currentlyServing.value = null;
+      }
     }
 
     // On initial page load, check
@@ -121,6 +133,7 @@ export default {
       callNext,
       processing,
       finishAndCallNext,
+      localStorageName,
     };
   },
 };

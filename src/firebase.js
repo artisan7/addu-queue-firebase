@@ -200,6 +200,7 @@ export function useQueue() {
   };
 
   const getQueueNumberById = async (id) => {
+    if (id == "" || id == null) return;
     let queueNum;
 
     queueNum = await queueNumCollection.doc(id).get();
