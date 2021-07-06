@@ -36,9 +36,24 @@ export function useAuth() {
 }
 
 const firestore = firebase.firestore();
+
+/**
+ * Collection of all queue numbers
+ * @returns Collection
+ */
 const queueNumCollection = firestore.collection("queue");
-const queueItemsQuery = queueNumCollection.orderBy("num", "asc");
-var queueCounterRef = firestore.collection("counter").doc("queueNum");
+
+/**
+ * Collection of queue numbers in ascending order
+ * @returns Collection
+ */
+const queueNumAscending = queueNumCollection.orderBy("num", "asc");
+
+/**
+ * Counter for the queue
+ * @returns Document
+ */
+const queueCounterRef = firestore.collection("counter").doc("queueNum");
 
 export function useQueue() {
   /**
@@ -50,10 +65,11 @@ export function useQueue() {
 
   // Watch the queue items
   // Also, hook for cleanup when component is unmounted
-  const unsubscribe = queueItemsQuery.onSnapshot((snapshot) => {
-    queueItems.value = snapshot.docs
-      .map((doc) => ({ id: doc.id, ...doc.data() }))
-      .reverse();
+  const unsubscribe = queueNumAscending.onSnapshot((snapshot) => {
+    queueItems.value = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
   });
 
   onUnmounted(unsubscribe);
@@ -64,7 +80,7 @@ export function useQueue() {
    * @date 2021-07-05
    * @returns Number
    */
-  const issueQueueNo = async () => {
+  const issueQueueNum = async () => {
     // Return value to indicate the number to be issued
     var newQueueNo;
 
@@ -117,7 +133,7 @@ export function useQueue() {
         // Get the first possible queue number with the appropriate stage
         // Theoretically, this should be enough, but noooooo
         // Firestore is too picky
-        let query = await queueItemsQuery
+        let query = await queueNumAscending
           .where("stage", "==", stage)
           .limit(1)
           .get();
@@ -170,7 +186,7 @@ export function useQueue() {
 
     // Watch the queue items
     // Also, hook for cleanup when component is unmounted
-    const displayUnsuscribe = queueItemsQuery
+    const displayUnsuscribe = queueNumAscending
       .where("stage", "==", stage)
       .onSnapshot((snapshot) => {
         displayQueueNums.value = snapshot.docs
@@ -183,11 +199,22 @@ export function useQueue() {
     return displayQueueNums;
   };
 
+  const getQueueNumberById = async (id) => {
+    let queueNum;
+
+    queueNum = await queueNumCollection.doc(id).get();
+
+    if (!queueNum.exists) return false;
+
+    return { id: id, ...queueNum.data() };
+  };
+
   return {
     queueItems,
-    issueQueueNo,
+    issueQueueNum,
     callForNextNum,
     finishCurrentNum,
     stationDisplayQueueNums,
+    getQueueNumberById,
   };
 }

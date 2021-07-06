@@ -1,12 +1,12 @@
 <template>
   <div>
-    Registration
+    Issue Num
     <h2>Issue #</h2>
-    <button @click="issueQueueNoLocal" :disabled="processing" class="btn">
+    <button @click="issueQueueNumLocal" :disabled="processing" class="btn">
       Issue No.
     </button>
-    <div v-if="previousQueueNo">
-      You just issued Queue No. {{ previousQueueNo }}
+    <div v-if="previousQueueNum">
+      You just issued Queue No. {{ previousQueueNum }}
     </div>
     <pre> {{ queueItems }}</pre>
   </div>
@@ -20,25 +20,24 @@ import { useQueue } from "../firebase";
 export default {
   name: "Registration",
   setup() {
-    const { queueItems, issueQueueNo } = useQueue();
+    const { queueItems, issueQueueNum } = useQueue();
     const processing = ref(false);
-    const previousQueueNo = ref(null);
+    const previousQueueNum = ref(null);
 
-    const issueQueueNoLocal = () => {
+    const issueQueueNumLocal = () => {
       processing.value = true;
-      // issueQueueNo(latestQueueNo.value);
-      issueQueueNo().then((val) => {
-        console.log(val);
+      issueQueueNum().then((val) => {
+        // console.log(val);
         processing.value = false;
 
-        previousQueueNo.value = val;
+        previousQueueNum.value = val;
       });
     };
 
     return {
       queueItems,
-      issueQueueNoLocal,
-      previousQueueNo,
+      issueQueueNumLocal,
+      previousQueueNum,
       processing,
     };
   },
