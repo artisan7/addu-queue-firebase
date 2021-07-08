@@ -31,6 +31,7 @@
                         >
                     </MDBNavbarItem>
                 </template>
+                <MDBNavbarItem>{{isLogin}}</MDBNavbarItem>
             </MDBNavbarNav>
         </MDBCollapse>
     </MDBNavbar>
@@ -47,6 +48,7 @@ import {
     MDBCollapse,
 } from "mdb-vue-ui-kit";
 import { ref } from "vue";
+import {useAuth} from "./firebase"
 
 export default {
     data: () => ({
@@ -69,9 +71,12 @@ export default {
         const collapse1 = ref(false);
         const dropdown1 = ref(false);
 
+        const { isLogin } = useAuth();
+
         return {
             collapse1,
             dropdown1,
+            isLogin,
         };
     },
 };

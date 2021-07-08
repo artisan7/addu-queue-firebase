@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Issue from "../views/Issue.vue";
 import Station from "../views/Station.vue";
 import Display from "../views/Display.vue";
+import SignIn from "../views/SignIn.vue";
 
 const routes = [
   {
@@ -28,6 +29,11 @@ const routes = [
     name: "Station Display",
     component: Display,
   },
+  {
+    path: "/signin",
+    name: "Sign In",
+    component: SignIn
+  }
 ];
 
 const router = createRouter({

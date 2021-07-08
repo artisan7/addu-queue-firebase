@@ -6,12 +6,12 @@ import { ref, onUnmounted, computed } from "vue";
 
 // Your web app's Firebase configuration
 var firebaseConfig = {
-  apiKey: "AIzaSyB7_aDpN3NAqRoIKCs7UDMBsE7BFFHZQrE",
-  authDomain: "addu-vaccination-queue.firebaseapp.com",
-  projectId: "addu-vaccination-queue",
-  storageBucket: "addu-vaccination-queue.appspot.com",
-  messagingSenderId: "671678336581",
-  appId: "1:671678336581:web:364ad6f86c6802b0c1dd2c",
+  apiKey: "AIzaSyC05T0b3Ruz9W-Maorntm0H6K4qUDVH_Zw",
+  authDomain: "addu-queue-test.firebaseapp.com",
+  projectId: "addu-queue-test",
+  storageBucket: "addu-queue-test.appspot.com",
+  messagingSenderId: "120146666998",
+  appId: "1:120146666998:web:a084833747b85bb46453d7",
 };
 
 // Initialize Firebase
@@ -25,14 +25,20 @@ export function useAuth() {
   onUnmounted(unsubscribe);
   const isLogin = computed(() => user.value !== null);
 
-  const signIn = async () => {
-    const googleProvider = new firebase.auth.GoogleAuthProvider();
-    await auth.signInWithPopup(googleProvider);
+  const signInWithForm = async (email, password) => {
+    return new Promise((resolve, reject) => {
+      auth
+        .signInWithEmailAndPassword(email, password)
+        .then(() => {
+          resolve("Logged in successfully!");
+        })
+        .catch((err) => reject(err));
+    });
   };
 
   const signOut = () => auth.signOut();
 
-  return { user, isLogin, signIn, signOut };
+  return { user, isLogin, signInWithForm, signOut };
 }
 
 const firestore = firebase.firestore();
@@ -47,7 +53,7 @@ const queueNumCollection = firestore.collection("queue");
  * Collection of queue numbers in ascending order
  * @returns Collection
  */
-const queueNumAscending = queueNumCollection.orderBy("num", "asc");
+const queueNumAscending = queueNumCollection.orderBy("queueTime", "asc");
 
 /**
  * Counter for the queue
@@ -104,6 +110,7 @@ export function useQueue() {
         // Save the new queue no
         transaction.set(queueNumRef, {
           num: newQueueNo,
+          queueTime: firebase.firestore.FieldValue.serverTimestamp(),
           stage: 0,
         });
       });
@@ -186,7 +193,7 @@ export function useQueue() {
 
     // Watch the queue items
     // Also, hook for cleanup when component is unmounted
-    const displayUnsuscribe = queueNumAscending
+    const displayUnsubscribe = queueNumAscending
       .where("stage", "==", stage)
       .onSnapshot((snapshot) => {
         displayQueueNums.value = snapshot.docs
@@ -194,7 +201,7 @@ export function useQueue() {
           .reverse();
       });
 
-    onUnmounted(displayUnsuscribe);
+    onUnmounted(displayUnsubscribe);
 
     return displayQueueNums;
   };
@@ -210,6 +217,28 @@ export function useQueue() {
     return { id: id, ...queueNum.data() };
   };
 
+  const unqueueNum = async (id) => {
+    return new Promise((resolve, reject) => {
+      if (!id) reject("ID is not valid.");
+
+      queueNumCollection
+        .doc(id)
+        .get()
+        .then((docRef) => {
+          if (!docRef.exists) reject("Could not find queue number.");
+
+          docRef
+            .set({
+              queueTime: firebase.firestore.FieldValue.serverTimestamp(),
+            })
+            .then(() => {
+              resolve("Queue number has been set back");
+            });
+        })
+        .catch((err) => reject(err));
+    });
+  };
+
   return {
     queueItems,
     issueQueueNum,
@@ -217,5 +246,6 @@ export function useQueue() {
     finishCurrentNum,
     stationDisplayQueueNums,
     getQueueNumberById,
+    unqueueNum,
   };
 }

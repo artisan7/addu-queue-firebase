@@ -19,7 +19,7 @@
             <h2>{{ previousQueueNum }}</h2>
           </div>
         </div>
-        <!-- <pre> {{ queueItems }}</pre> -->
+        <pre> {{ queueItems }}</pre>
       </MDBCardBody>
     </MDBCard>
   </MDBContainer>
