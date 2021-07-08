@@ -1,27 +1,42 @@
 <template>
-  <div>
-    <h2>Currently Serving #</h2>
-    <h1 v-if="this.currentlyServing === null">None</h1>
-    <h1 v-else>{{ currentlyServing.num }}</h1>
-    <div v-if="this.currentlyServing">
-      <button :disabled="processing" @click="finishAndCallNext">
-        CALL NEXT #
-      </button>
-      <h2>
-        Finish current patient and call for the next #
-      </h2>
-    </div>
-    <div v-else>
-      <button :disabled="processing" @click="callNext">CALL NEXT #</button>
-      <h2>Call for the next #</h2>
-    </div>
-    <div v-if="this.currentlyServing">
-      <button :disabled="processing" @click="finishCurrent">FINISH</button>
-      <h2>
-        Finish with current patient
-      </h2>
-    </div>
-  </div>
+  <MDBCard id="control-layout">
+    <MDBCardBody>
+      <h2>Currently Serving #</h2>
+      <h1 v-if="this.currentlyServing === null">None</h1>
+      <h1 v-else>{{ currentlyServing.num }}</h1>
+      <div v-if="this.currentlyServing">
+        <MDBBtn
+          color="primary"
+          :disabled="processing"
+          @click="finishAndCallNext"
+        >
+          CALL NEXT #
+        </MDBBtn>
+        <h2>Finish current patient and call for the next #</h2>
+      </div>
+      <div v-else>
+        <MDBBtn color="primary" :disabled="processing" @click="callNext"
+          >CALL NEXT #</MDBBtn
+        >
+        <h2>Call for the next #</h2>
+      </div>
+      <div v-if="this.currentlyServing">
+        <MDBBtn color="warning" :disabled="processing" @click="finishCurrent"
+          >FINISH</MDBBtn
+        >
+        <h2>Finish with current patient</h2>
+      </div>
+    </MDBCardBody>
+  </MDBCard>
+  <section id="legend">
+    <h5>Notes:</h5>
+    <ul>
+      <li class="notes">Call Next # - Calling next number</li>
+      <li class="notes">
+        Finish - When you are done with your current patient
+      </li>
+    </ul>
+  </section>
 </template>
 
 <script>
@@ -29,9 +44,11 @@ import { watch } from "@vue/runtime-core";
 import { ref, computed } from "vue";
 import { useQueue } from "../firebase";
 import { useRoute } from "vue-router";
+import { MDBCard, MDBCardBody, MDBBtn } from "mdb-vue-ui-kit";
 
 export default {
   name: "StationControl",
+  components: { MDBCard, MDBCardBody, MDBBtn },
   props: {
     stationName: {
       type: String,
@@ -138,3 +155,24 @@ export default {
   },
 };
 </script>
+
+<style>
+#control-layout {
+  border: 3px solid #d7d7d7;
+  text-align: center;
+}
+
+#num-card {
+  background: #ff9901;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+  text-align: center;
+  border-radius: 10px;
+  width: 70%;
+}
+#num-card h1 {
+  font-style: normal;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+</style>

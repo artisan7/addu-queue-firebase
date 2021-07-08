@@ -1,17 +1,19 @@
 <template>
-  <station-control
-    :stationName="$route.params.station"
-    :stageId="stageId"
-  ></station-control>
-  {{ $route.params.station }}
-  {{ stageId }}
+  <MDBContainer md>
+    <h3 style="text-transform: capitalize">{{ $route.params.station }}</h3>
+    <station-control
+      :stationName="$route.params.station"
+      :stageId="stageId"
+    ></station-control>
+  </MDBContainer>
 </template>
 
 <script>
+import { MDBContainer } from "mdb-vue-ui-kit";
 import StationControl from "../components/StationControl";
 
 export default {
-  components: { StationControl },
+  components: { MDBContainer, StationControl },
   computed: {
     stageId() {
       return this.mapStage[this.$route.params.station];

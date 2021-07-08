@@ -1,24 +1,39 @@
 <template>
-  <div>
-    Issue Num
-    <h2>Issue #</h2>
-    <button @click="issueQueueNumLocal" :disabled="processing" class="btn">
-      Issue No.
-    </button>
-    <div v-if="previousQueueNum">
-      You just issued Queue No. {{ previousQueueNum }}
-    </div>
-    <pre> {{ queueItems }}</pre>
-  </div>
+  <MDBContainer md>
+    <h3 style="text-transform: capitalize">Issue a Number</h3>
+
+    <MDBCard id="issue-layout">
+      <MDBCardBody id="issue-layout-body">
+        <h2>Issue #</h2>
+        <MDBBtn
+          color="primary"
+          @click="issueQueueNumLocal"
+          :disabled="processing"
+        >
+          Issue No.
+        </MDBBtn>
+        <div id="num-card">
+          <div v-if="previousQueueNum">
+            <h6>You just issued Queue No.</h6>
+
+            <h2>{{ previousQueueNum }}</h2>
+          </div>
+        </div>
+        <!-- <pre> {{ queueItems }}</pre> -->
+      </MDBCardBody>
+    </MDBCard>
+  </MDBContainer>
 </template>
 
 <script>
 // import { ref, watch, nextTick } from "vue";
 import { ref } from "vue";
 import { useQueue } from "../firebase";
+import { MDBContainer, MDBCard, MDBCardBody, MDBBtn } from "mdb-vue-ui-kit";
 
 export default {
   name: "Registration",
+  components: { MDBContainer, MDBCard, MDBCardBody, MDBBtn },
   setup() {
     const { queueItems, issueQueueNum } = useQueue();
     const processing = ref(false);
@@ -44,18 +59,26 @@ export default {
 };
 </script>
 <style>
-.btn {
-  background: none;
-  border: 1px solid black;
-  padding: 1rem 2rem;
-  border-radius: 5px;
+#issue-layout {
+  border: 3px solid #d7d7d7;
+  /* text-align: center; */
+}
+#header {
+  text-transform: capitalize;
 }
 
-.btn:hover {
-  background: rgba(0, 0, 0, 0.2);
+#issue-layout-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
-.btn:focus {
-  background: gray;
+#num-card h2,
+#num-card h6 {
+  color: #ffffff;
+  padding: 5px;
+  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 </style>

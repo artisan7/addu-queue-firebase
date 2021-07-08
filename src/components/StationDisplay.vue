@@ -2,23 +2,36 @@
 THAT ARE CURRENTLY BEING SERVED IN THE STATION -->
 
 <template>
-  <div>
-    <h1 v-html="stationName"></h1>
-    <h2>Currently Serving #s</h2>
-    <div v-for="item in displayNums" :key="item" :class="{ new: item.new }">
-      {{ item.num }}
-    </div>
-  </div>
+  <MDBRow
+    ><MDBCol> <h2>Currently Serving #s</h2> </MDBCol></MDBRow
+  >
+
+  <MDBRow>
+    <MDBCol
+      v-for="(item, index) in displayNums"
+      :key="item"
+      :class="{ new: item.new, even: index % 2 === 0, odd: index % 2 === 1 }"
+    >
+      <h3>{{ item.num }}</h3>
+    </MDBCol>
+  </MDBRow>
 </template>
 
 <script>
 import { watch } from "@vue/runtime-core";
 import { ref } from "vue";
 import { useQueue } from "../firebase";
+import { MDBRow, MDBCol } from "mdb-vue-ui-kit";
 
 export default {
   name: "StationDisplay",
-
+  components: { MDBRow, MDBCol },
+  computed: {
+    limitQueue() {
+      if (this.displayNums.length > 10) return this.displayNums.slice(0, 10);
+      return this.displayNums;
+    },
+  },
   props: { stationName: String, stageId: Number },
   setup(props) {
     // Hooks
@@ -54,5 +67,20 @@ export default {
 <style scoped>
 .new {
   color: red;
+}
+.even,
+.odd {
+  text-align: center;
+  color: white;
+  font-style: normal;
+  padding: 5px;
+  margin: 10px;
+  border-radius: 10px;
+}
+.even {
+  background-color: #eca53b;
+}
+.odd {
+  background-color: #3281c9;
 }
 </style>

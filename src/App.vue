@@ -1,48 +1,93 @@
 <template>
-  <div id="nav">
-    <router-link to="/issue">Issue Num</router-link> |
-    <span v-for="(station, key) in stations" :key="station">
-      <router-link :to="`/station/${station}`"> {{ key }} Controls</router-link>
-      |
-      <router-link :to="`/display/${station}`">Display {{ key }}</router-link> |
-    </span>
-    <router-link to="/about">About</router-link>
-  </div>
-  <router-view />
+    <MDBNavbar id="main-nav" container expand="lg" dark bg="primary">
+        <MDBNavbarBrand href="#"
+            ><img src="../public/nav_logo.png" width="100" />
+        </MDBNavbarBrand>
+        <MDBNavbarToggler
+            @click="collapse1 = !collapse1"
+            target="#navbarSupportedContent"
+        ></MDBNavbarToggler>
+        <MDBCollapse v-model="collapse1" id="navbarSupportedContent">
+            <MDBNavbarNav class="mb-2 mb-lg-0">
+                <MDBNavbarItem to="#">
+                    <router-link to="/issue" class="nav-link"
+                        >Issue Num</router-link
+                    >
+                </MDBNavbarItem>
+                <template v-for="(station, key) in stations" :key="station">
+                    <MDBNavbarItem to="#">
+                        <router-link
+                            :to="`/station/${station}`"
+                            class="nav-link"
+                        >
+                            {{ key }} Controls</router-link
+                        >
+                    </MDBNavbarItem>
+                    <MDBNavbarItem to="#">
+                        <router-link
+                            :to="`/display/${station}`"
+                            class="nav-link"
+                            >Display {{ key }}</router-link
+                        >
+                    </MDBNavbarItem>
+                </template>
+            </MDBNavbarNav>
+        </MDBCollapse>
+    </MDBNavbar>
+    <router-view />
 </template>
 
 <script>
+import {
+    MDBNavbar,
+    MDBNavbarToggler,
+    MDBNavbarBrand,
+    MDBNavbarNav,
+    MDBNavbarItem,
+    MDBCollapse,
+} from "mdb-vue-ui-kit";
+import { ref } from "vue";
+
 export default {
-  data: () => ({
-    stations: {
-      Registration: "registration",
-      Screening: "screening",
-      Vitals: "vitals",
-      Vaccination: "vaccination",
+    data: () => ({
+        stations: {
+            Registration: "registration",
+            Screening: "screening",
+            Vitals: "vitals",
+            Vaccination: "vaccination",
+        },
+    }),
+    components: {
+        MDBNavbar,
+        MDBNavbarToggler,
+        MDBNavbarBrand,
+        MDBNavbarNav,
+        MDBNavbarItem,
+        MDBCollapse,
     },
-  }),
+    setup() {
+        const collapse1 = ref(false);
+        const dropdown1 = ref(false);
+
+        return {
+            collapse1,
+            dropdown1,
+        };
+    },
 };
 </script>
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+    /* font-family: Avenir, Helvetica, Arial, sans-serif; */
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #2c3e50;
 }
 
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+#main-nav {
+    background-color: #2f84bd !important;
+    margin-bottom: 10px;
 }
 </style>
