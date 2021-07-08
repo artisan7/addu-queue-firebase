@@ -2,19 +2,30 @@
 THAT ARE CURRENTLY BEING SERVED IN THE STATION -->
 
 <template>
-  <MDBRow
-    ><MDBCol> <h2>Currently Serving #s</h2> </MDBCol></MDBRow
-  >
-
   <MDBRow>
     <MDBCol
-      v-for="(item, index) in displayNums"
-      :key="item"
-      :class="{ new: item.new, even: index % 2 === 0, odd: index % 2 === 1 }"
+      v-for="item in dummyNums"
+      :key="item.num"
+      :class="{ new: item.new, old: !item.new }"
+      class="num-list"
     >
-      <h3>{{ item.num }}</h3>
+      {{ item.num }}
     </MDBCol>
   </MDBRow>
+  <div>
+    <div class="inline-layout">
+      <div class="new-square" />
+      &nbsp;
+      <h5>Newly called</h5>
+    </div>
+    <div class="inline-layout">
+      <div class="old-square" />
+      &nbsp;
+      <h5>
+        Not called because of his/her absence so you are now in waiting list
+      </h5>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -26,11 +37,61 @@ import { MDBRow, MDBCol } from "mdb-vue-ui-kit";
 export default {
   name: "StationDisplay",
   components: { MDBRow, MDBCol },
-  computed: {
-    limitQueue() {
-      if (this.displayNums.length > 10) return this.displayNums.slice(0, 10);
-      return this.displayNums;
-    },
+  data() {
+    return {
+      dummyNums: [
+        {
+          num: 789,
+          new: true,
+          station: 1,
+        },
+        {
+          num: 987,
+          new: false,
+          station: 1,
+        },
+        {
+          num: 278,
+          new: true,
+          station: 1,
+        },
+        {
+          num: 456,
+          new: true,
+          station: 1,
+        },
+        {
+          num: 512,
+          new: true,
+          station: 1,
+        },
+        {
+          num: 467,
+          new: false,
+          station: 1,
+        },
+        {
+          num: 298,
+          new: false,
+          station: 1,
+        },
+        {
+          num: 299,
+          new: true,
+          station: 1,
+        },
+        {
+          num: 106,
+          new: true,
+          station: 1,
+        },
+        {
+          num: 199,
+          new: true,
+          station: 1,
+        },
+      ],
+    };
   },
   props: { stationName: String, stageId: Number },
   setup(props) {
@@ -66,21 +127,38 @@ export default {
 
 <style scoped>
 .new {
-  color: red;
+  background-color: #3281c9;
+  font-weight: bold !important;
+  filter: drop-shadow(0px 5px 5px rgba(0, 0, 0, 0.4));
 }
-.even,
-.odd {
+.old {
+  background-color: #eca53b;
+  font-weight: regular !important;
+}
+
+.new-square {
+  background-color: #3281c9;
+  width: 20px;
+  height: 20px;
+}
+.old-square {
+  background-color: #eca53b;
+  width: 20px;
+  height: 20px;
+}
+
+.inline-layout {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.num-list {
   text-align: center;
   color: white;
   font-style: normal;
   padding: 5px;
   margin: 10px;
   border-radius: 10px;
-}
-.even {
-  background-color: #eca53b;
-}
-.odd {
-  background-color: #3281c9;
+  font-size: 3rem;
 }
 </style>
