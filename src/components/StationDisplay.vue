@@ -5,7 +5,6 @@ THAT ARE CURRENTLY BEING SERVED IN THE STATION -->
   <MDBRow
     ><MDBCol> <h2>Currently Serving #s</h2> </MDBCol></MDBRow
   >
-
   <MDBRow>
     <MDBCol
       v-for="(item, index) in displayNums"

@@ -31,11 +31,13 @@
 import { MDBContainer, MDBInput, MDBRow, MDBBtn } from "mdb-vue-ui-kit";
 import { ref } from "@vue/reactivity";
 import { useAuth } from "../firebase";
+import { useRouter } from "vue-router";
 
 export default {
   components: { MDBContainer, MDBInput, MDBRow, MDBBtn },
   setup() {
     const { signInWithForm } = useAuth();
+    const router = useRouter();
 
     const form = ref({
       email: "",
@@ -44,8 +46,8 @@ export default {
 
     const signIn = () => {
       signInWithForm(form.value.email, form.value.password)
-        .then((success) => {
-          console.log(success);
+        .then(() => {
+          router.push("/");
         })
         .catch((err) => console.log(err));
     };

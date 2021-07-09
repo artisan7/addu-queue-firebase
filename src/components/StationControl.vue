@@ -1,7 +1,9 @@
 <template>
   <MDBCard id="control-layout">
     <MDBCardBody>
-      <h2>Currently Serving #</h2>
+      <MDCardTitle>
+        <h2>Currently Serving #</h2>
+      </MDCardTitle>
       <h1 v-if="this.currentlyServing === null">None</h1>
       <h1 v-else>{{ currentlyServing.num }}</h1>
       <div v-if="this.currentlyServing">
@@ -9,22 +11,34 @@
           color="primary"
           :disabled="processing"
           @click="finishAndCallNext"
+          size="lg"
         >
           CALL NEXT #
         </MDBBtn>
-        <h2>Finish current patient and call for the next #</h2>
+        <h2 class="lead">Finish current patient and call for the next #</h2>
       </div>
       <div v-else>
-        <MDBBtn color="primary" :disabled="processing" @click="callNext"
+        <MDBBtn
+          color="primary"
+          :disabled="processing"
+          @click="callNext"
+          size="lg"
           >CALL NEXT #</MDBBtn
         >
-        <h2>Call for the next #</h2>
+        <h2 class="lead">Call for the next #</h2>
       </div>
       <div v-if="this.currentlyServing">
         <MDBBtn color="warning" :disabled="processing" @click="finishCurrent"
           >FINISH</MDBBtn
         >
-        <h2>Finish with current patient</h2>
+        <h2 class="lead">Finish with current patient</h2>
+      </div>
+
+      <div v-if="this.currentlyServing">
+        <MDBBtn color="danger" :disabled="processing" @click="finishCurrent"
+          >Send Back</MDBBtn
+        >
+        <h2 class="lead">Finish with current patient</h2>
       </div>
     </MDBCardBody>
   </MDBCard>

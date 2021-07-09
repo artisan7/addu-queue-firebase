@@ -6,18 +6,26 @@ import { ref, onUnmounted, computed } from "vue";
 
 // Your web app's Firebase configuration
 var firebaseConfig = {
-  apiKey: "AIzaSyC05T0b3Ruz9W-Maorntm0H6K4qUDVH_Zw",
-  authDomain: "addu-queue-test.firebaseapp.com",
-  projectId: "addu-queue-test",
-  storageBucket: "addu-queue-test.appspot.com",
-  messagingSenderId: "120146666998",
-  appId: "1:120146666998:web:a084833747b85bb46453d7",
+  apiKey: "AIzaSyB7_aDpN3NAqRoIKCs7UDMBsE7BFFHZQrE",
+  authDomain: "addu-vaccination-queue.firebaseapp.com",
+  projectId: "addu-vaccination-queue",
+  storageBucket: "addu-vaccination-queue.appspot.com",
+  messagingSenderId: "671678336581",
+  appId: "1:671678336581:web:364ad6f86c6802b0c1dd2c",
 };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
+
+export function useAuthServer() {
+  const user = ref(null);
+  auth.onAuthStateChanged((_user) => (user.value = _user));
+  const isLogin = computed(() => user.value !== null);
+
+  return { isLogin, user };
+}
 
 export function useAuth() {
   const user = ref(null);
@@ -36,7 +44,19 @@ export function useAuth() {
     });
   };
 
-  const signOut = () => auth.signOut();
+  /**
+   * 描述
+   * @date 2021-07-08
+   * @returns {any}
+   */
+  const signOut = () => {
+    return new Promise((resolve, reject) => {
+      auth
+        .signOut()
+        .then(resolve("Signed out!"))
+        .catch((err) => reject(err));
+    });
+  };
 
   return { user, isLogin, signInWithForm, signOut };
 }
