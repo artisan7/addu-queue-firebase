@@ -1,14 +1,16 @@
 <template>
   <MDBContainer md>
-    <h3 style="text-transform: capitalize">{{ $route.params.station }}</h3>
+    <h3>
+      <span style="text-transform: capitalize">{{
+        $route.params.station
+      }}</span>
+      - Currently Serving #s
+    </h3>
     <station-display
       :stationName="$route.params.station"
       :stageId="stageId"
     ></station-display>
   </MDBContainer>
-
-  <!-- {{ $route.params.station }}
-  {{ stageId }} -->
 </template>
 
 <script>

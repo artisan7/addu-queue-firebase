@@ -1,21 +1,24 @@
 <template>
   <MDBCard id="control-layout">
-    <MDBCardBody>
-      <MDCardTitle>
-        <h2>Currently Serving #</h2>
-      </MDCardTitle>
+    <MDBCardBody id="control-layout-body">
+      <h2>Currently Serving #</h2>
       <h1 v-if="this.currentlyServing === null">None</h1>
       <h1 v-else>{{ currentlyServing.num }}</h1>
       <div v-if="this.currentlyServing">
+        <MDBBtn color="info" class="btns" :disabled="processing">
+          CALL Prev #
+        </MDBBtn>
+      </div>
+      <div v-if="this.currentlyServing">
         <MDBBtn
           color="primary"
+          class="btns"
           :disabled="processing"
           @click="finishAndCallNext"
           size="lg"
         >
           CALL NEXT #
         </MDBBtn>
-        <h2 class="lead">Finish current patient and call for the next #</h2>
       </div>
       <div v-else>
         <MDBBtn
@@ -25,10 +28,13 @@
           size="lg"
           >CALL NEXT #</MDBBtn
         >
-        <h2 class="lead">Call for the next #</h2>
       </div>
       <div v-if="this.currentlyServing">
-        <MDBBtn color="warning" :disabled="processing" @click="finishCurrent"
+        <MDBBtn
+          color="warning"
+          class="btns"
+          :disabled="processing"
+          @click="finishCurrent"
           >FINISH</MDBBtn
         >
         <h2 class="lead">Finish with current patient</h2>
@@ -48,6 +54,10 @@
       <li class="notes">Call Next # - Calling next number</li>
       <li class="notes">
         Finish - When you are done with your current patient
+      </li>
+      <li class="notes">
+        Call Prev # - Call the ones you have skipped because he/she didn't show
+        up
       </li>
     </ul>
   </section>
@@ -174,6 +184,9 @@ export default {
 #control-layout {
   border: 3px solid #d7d7d7;
   text-align: center;
+}
+.btns {
+  margin-bottom: 10px !important;
 }
 
 #num-card {
