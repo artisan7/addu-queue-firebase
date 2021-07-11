@@ -77,9 +77,8 @@
 
 <script>
 import { watch } from "@vue/runtime-core";
-import { ref, computed } from "vue";
-import { useQueue } from "../firebase";
-import { useRoute } from "vue-router";
+import { ref } from "vue";
+import { useQueue, useAuth } from "../firebase";
 import { MDBCard, MDBCardBody, MDBBtn } from "mdb-vue-ui-kit";
 import QueueNumberCard from "./QueueNumberCard";
 
@@ -98,13 +97,13 @@ export default {
   },
   setup(props, context) {
     // Hooks
-    const route = useRoute();
     const {
       callForNextNum,
       finishCurrentNum,
-      getQueueNumberById,
       unqueueNum,
+      getQueueNumberByAuth,
     } = useQueue();
+    const { user } = useAuth();
 
     // Data
     const currentlyServing = ref(null);
@@ -116,11 +115,6 @@ export default {
     //   vaccination: 6,
     // };
 
-    // Computed
-    const localStorageName = computed(() => {
-      return `ateneoQueueIdStation${route.params.station}`;
-    });
-
     // Methods
 
     // Finish current queue number
@@ -129,13 +123,11 @@ export default {
 
       try {
         await finishCurrentNum(currentlyServing.value.id);
+        currentlyServing.value = null;
       } catch (err) {
         context.emit("error", err);
       }
       processing.value = false;
-      currentlyServing.value = null;
-
-      localStorage.setItem(localStorageName.value, null);
     };
 
     // Call for the next queue number
@@ -146,12 +138,10 @@ export default {
       await callForNextNum(props.stageId)
         .then((queueNum) => {
           currentlyServing.value = queueNum;
-          localStorage.setItem(localStorageName.value, queueNum.id);
           processing.value = false;
         })
         .catch((err) => {
           context.emit("error", err);
-          localStorage.setItem(localStorageName.value, null);
           processing.value = false;
         });
     };
@@ -161,21 +151,6 @@ export default {
       await finishCurrent();
       await callNext();
     };
-
-    // Check to see if there's still a number not yet finished
-    function checkLocalStorage() {
-      if (localStorage.getItem(localStorageName.value) != "null")
-        getQueueNumberById(localStorage.getItem(localStorageName.value)).then(
-          (data) => {
-            if (data) {
-              currentlyServing.value = data;
-            }
-          }
-        );
-      else {
-        currentlyServing.value = null;
-      }
-    }
 
     // Unqueue current number
     function unqueueNumLocal() {
@@ -187,14 +162,22 @@ export default {
         .catch((err) => context.emit("error", err));
     }
 
-    // On initial page load, check
-    checkLocalStorage();
+    processing.value = true;
 
-    // When route changes, check
     watch(
-      () => route.params.station,
+      () => user.value,
       () => {
-        checkLocalStorage();
+        getQueueNumberByAuth(user.value.uid)
+          .then((data) => {
+            if (data) currentlyServing.value = data;
+            processing.value = false;
+          })
+          .catch(() => {
+            context.emit(
+              "error",
+              "Something went wrong in the loading of the data."
+            );
+          });
       }
     );
 
@@ -204,8 +187,8 @@ export default {
       callNext,
       processing,
       finishAndCallNext,
-      localStorageName,
       unqueueNumLocal,
+      getQueueNumberByAuth,
     };
   },
 };

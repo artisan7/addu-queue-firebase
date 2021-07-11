@@ -261,6 +261,19 @@ export function useQueue() {
     return { id: id, ...queueNum.data() };
   };
 
+  const getQueueNumberByAuth = async (uid) => {
+    try {
+      const queueNumId = await (await stationDetailsRef.doc(uid).get()).data()
+        .currentQueueId;
+
+      const queueNum = await getQueueNumberById(queueNumId);
+
+      return Promise.resolve(queueNum);
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  };
+
   /**
    * Sends back the number to the back of the queue
    * @param String id
@@ -323,5 +336,6 @@ export function useQueue() {
     getQueueNumberById,
     unqueueNum,
     seedUsers,
+    getQueueNumberByAuth,
   };
 }
