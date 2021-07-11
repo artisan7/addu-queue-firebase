@@ -1,13 +1,12 @@
 <template>
-  <MDBCard id="control-layout">
+  <MDBCard id="control-layout" class=" text-center">
     <MDBCardBody id="control-layout-body">
-      <h2>Currently Serving #</h2>
-      <h1 v-if="this.currentlyServing === null">None</h1>
-      <h1 v-else>{{ currentlyServing.num }}</h1>
-      <div v-if="this.currentlyServing">
-        <MDBBtn color="info" class="btns" :disabled="processing">
-          CALL Prev #
-        </MDBBtn>
+      <h2 class="display-3">Current Queue Number</h2>
+      <div class="d-flex justify-content-center m-2">
+        <queue-number-card>
+          <span v-if="this.currentlyServing === null">None</span>
+          <span v-else>{{ currentlyServing.num }}</span>
+        </queue-number-card>
       </div>
       <div v-if="this.currentlyServing">
         <MDBBtn
@@ -17,8 +16,11 @@
           @click="finishAndCallNext"
           size="lg"
         >
-          CALL NEXT #
+          Call Next Number
         </MDBBtn>
+        <h2 class="lead">
+          Finish with current patient and call another number
+        </h2>
       </div>
       <div v-else>
         <MDBBtn
@@ -26,12 +28,13 @@
           :disabled="processing"
           @click="callNext"
           size="lg"
-          >CALL NEXT #</MDBBtn
+          >Call Next Number</MDBBtn
         >
+        <h2 class="lead">Call a number from the queue</h2>
       </div>
       <div v-if="this.currentlyServing">
         <MDBBtn
-          color="warning"
+          color="info"
           class="btns"
           :disabled="processing"
           @click="finishCurrent"
@@ -41,14 +44,23 @@
       </div>
 
       <div v-if="this.currentlyServing">
-        <MDBBtn color="danger" :disabled="processing" @click="finishCurrent"
+        <MDBBtn
+          color="danger"
+          :disabled="processing"
+          @click="unqueueNumLocal"
+          size="sm"
           >Send Back</MDBBtn
         >
-        <h2 class="lead">Finish with current patient</h2>
+        <h2 class="lead">
+          Send current patient back to the queue<br />
+          <small class="text-danger"
+            >Only do this when the patient is late or missing</small
+          >
+        </h2>
       </div>
     </MDBCardBody>
   </MDBCard>
-  <section id="legend">
+  <!-- <section id="legend">
     <h5>Notes:</h5>
     <ul>
       <li class="notes">Call Next # - Calling next number</li>
@@ -60,7 +72,7 @@
         up
       </li>
     </ul>
-  </section>
+  </section> -->
 </template>
 
 <script>
@@ -69,10 +81,11 @@ import { ref, computed } from "vue";
 import { useQueue } from "../firebase";
 import { useRoute } from "vue-router";
 import { MDBCard, MDBCardBody, MDBBtn } from "mdb-vue-ui-kit";
+import QueueNumberCard from "./QueueNumberCard";
 
 export default {
   name: "StationControl",
-  components: { MDBCard, MDBCardBody, MDBBtn },
+  components: { MDBCard, MDBCardBody, MDBBtn, QueueNumberCard },
   props: {
     stationName: {
       type: String,
@@ -83,10 +96,15 @@ export default {
       required: true,
     },
   },
-  setup(props) {
+  setup(props, context) {
     // Hooks
     const route = useRoute();
-    const { callForNextNum, finishCurrentNum, getQueueNumberById } = useQueue();
+    const {
+      callForNextNum,
+      finishCurrentNum,
+      getQueueNumberById,
+      unqueueNum,
+    } = useQueue();
 
     // Data
     const currentlyServing = ref(null);
@@ -129,8 +147,8 @@ export default {
           processing.value = false;
         })
         .catch((err) => {
+          context.emit("error", err);
           // TODO: Create error handling
-          console.log("Error: ", err);
           localStorage.setItem(localStorageName.value, null);
           processing.value = false;
         });
@@ -157,6 +175,16 @@ export default {
       }
     }
 
+    // Unqueue current number
+    function unqueueNumLocal() {
+      // console.log(currentlyServing.value);
+      unqueueNum(currentlyServing.value.id)
+        .then(() => {
+          currentlyServing.value = null;
+        })
+        .catch((err) => context.emit("error", err));
+    }
+
     // On initial page load, check
     checkLocalStorage();
 
@@ -175,6 +203,7 @@ export default {
       processing,
       finishAndCallNext,
       localStorageName,
+      unqueueNumLocal,
     };
   },
 };
@@ -183,7 +212,6 @@ export default {
 <style>
 #control-layout {
   border: 3px solid #d7d7d7;
-  text-align: center;
 }
 .btns {
   margin-bottom: 10px !important;

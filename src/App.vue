@@ -12,7 +12,46 @@
         <MDBNavbarItem to="#">
           <router-link to="/issue" class="nav-link">Issue Num</router-link>
         </MDBNavbarItem>
-        <template v-for="(station, key) in stations" :key="station">
+        <MDBNavbarItem>
+          <MDBDropdown class="nav-item" v-model="stationDropdown">
+            <MDBDropdownToggle
+              tag="a"
+              class="nav-link mt-2"
+              @click="stationDropdown = !stationDropdown"
+              >Station</MDBDropdownToggle
+            >
+            <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
+              <MDBDropdownItem
+                v-for="(station, key) in stations"
+                :key="station"
+                :href="`/station/${station}`"
+              >
+                {{ key }}
+              </MDBDropdownItem>
+            </MDBDropdownMenu>
+          </MDBDropdown>
+        </MDBNavbarItem>
+        <MDBNavbarItem>
+          <MDBDropdown class="nav-item" v-model="displayDropdown">
+            <MDBDropdownToggle
+              tag="a"
+              class="nav-link mt-2"
+              @click="displayDropdown = !displayDropdown"
+              >Display</MDBDropdownToggle
+            >
+            <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
+              <MDBDropdownItem
+                v-for="(station, key) in stations"
+                :key="station"
+                :href="`/display/${station}`"
+              >
+                {{ key }}
+              </MDBDropdownItem>
+            </MDBDropdownMenu>
+          </MDBDropdown>
+        </MDBNavbarItem>
+
+        <!-- <template v-for="(station, key) in stations" :key="station">
           <MDBNavbarItem to="#">
             <router-link :to="`/station/${station}`" class="nav-link">
               {{ key }} Controls</router-link
@@ -23,7 +62,7 @@
               >Display {{ key }}</router-link
             >
           </MDBNavbarItem>
-        </template>
+        </template> -->
         <MDBNavbarItem v-if="!isLogin" to="#">
           <router-link :to="`/signin`" class="nav-link">Sign In</router-link>
         </MDBNavbarItem>
@@ -33,7 +72,16 @@
       </MDBNavbarNav>
     </MDBCollapse>
   </MDBNavbar>
-  <router-view />
+  <router-view v-bind="$attrs" @error="errorMessage" />
+  <div
+    class="alert alert-danger m-5 fixed-top"
+    :class="{
+      active: error,
+    }"
+    role="alert"
+  >
+    {{ errorString }}
+  </div>
 </template>
 
 <script>
@@ -44,6 +92,10 @@ import {
   MDBNavbarNav,
   MDBNavbarItem,
   MDBCollapse,
+  MDBDropdownMenu,
+  MDBDropdownItem,
+  MDBDropdownToggle,
+  MDBDropdown,
 } from "mdb-vue-ui-kit";
 import { ref } from "vue";
 import { useAuth } from "./firebase";
@@ -64,17 +116,35 @@ export default {
     MDBNavbarNav,
     MDBNavbarItem,
     MDBCollapse,
+    MDBDropdownMenu,
+    MDBDropdownItem,
+    MDBDropdownToggle,
+    MDBDropdown,
   },
   setup() {
-    const collapse1 = ref(false);
-    const dropdown1 = ref(false);
-
     const { isLogin } = useAuth();
 
+    const collapse1 = ref(false);
+    const stationDropdown = ref(false);
+    const displayDropdown = ref(false);
+    const error = ref(false);
+    const errorString = ref("");
+
+    function errorMessage(message) {
+      error.value = true;
+      setTimeout(() => {
+        error.value = false;
+      }, 2000);
+      errorString.value = message;
+    }
     return {
       collapse1,
-      dropdown1,
+      stationDropdown,
+      displayDropdown,
       isLogin,
+      error,
+      errorString,
+      errorMessage,
     };
   },
 };
@@ -92,5 +162,17 @@ export default {
 #main-nav {
   background-color: #2f84bd !important;
   margin-bottom: 10px;
+}
+
+.alert {
+  transition: all 500ms ease;
+  opacity: 0;
+  overflow: none;
+  transform: translateY(-200%);
+}
+
+.alert.active {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>

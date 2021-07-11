@@ -1,5 +1,5 @@
 <template>
-  <MDBContainer md>
+  <MDBContainer md class="d-flex flex-column align-items-center">
     <h3>
       <span style="text-transform: capitalize">{{
         $route.params.station

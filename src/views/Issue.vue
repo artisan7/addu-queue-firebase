@@ -1,27 +1,24 @@
 <template>
   <MDBContainer md>
-    <h3 style="text-transform: capitalize">Issue a Number</h3>
+    <div class="p-5 text-center bg-light">
+      <h1 class="display-2">Issue a Number</h1>
+      <MDBBtn
+        color="primary"
+        @click="issueQueueNumLocal"
+        :disabled="processing"
+        size="lg"
+      >
+        Issue No.
+      </MDBBtn>
+      <div
+        class="d-flex flex-column align-items-center mt-2"
+        v-if="previousQueueNum"
+      >
+        <h4 class="my-3 lead">You just issued</h4>
 
-    <MDBCard id="issue-layout">
-      <MDBCardBody id="issue-layout-body">
-        <h2>Issue #</h2>
-        <MDBBtn
-          color="primary"
-          @click="issueQueueNumLocal"
-          :disabled="processing"
-        >
-          Issue No.
-        </MDBBtn>
-        <div id="num-card">
-          <div v-if="previousQueueNum">
-            <h6>You just issued Queue No.</h6>
-
-            <h2>{{ previousQueueNum }}</h2>
-          </div>
-        </div>
-        <pre> {{ queueItems }}</pre>
-      </MDBCardBody>
-    </MDBCard>
+        <queue-number-card>{{ previousQueueNum }}</queue-number-card>
+      </div>
+    </div>
   </MDBContainer>
 </template>
 
@@ -29,11 +26,16 @@
 // import { ref, watch, nextTick } from "vue";
 import { ref } from "vue";
 import { useQueue } from "../firebase";
-import { MDBContainer, MDBCard, MDBCardBody, MDBBtn } from "mdb-vue-ui-kit";
+import { MDBContainer, MDBBtn } from "mdb-vue-ui-kit";
+import QueueNumberCard from "../components/QueueNumberCard.vue";
 
 export default {
   name: "Registration",
-  components: { MDBContainer, MDBCard, MDBCardBody, MDBBtn },
+  components: {
+    MDBContainer,
+    MDBBtn,
+    QueueNumberCard,
+  },
   setup() {
     const { queueItems, issueQueueNum } = useQueue();
     const processing = ref(false);
@@ -44,8 +46,10 @@ export default {
       issueQueueNum().then((val) => {
         // console.log(val);
         processing.value = false;
-
         previousQueueNum.value = val;
+        // setTimeout(() => {
+        //   previousQueueNum.value = null;
+        // }, 2000);
       });
     };
 
@@ -58,27 +62,4 @@ export default {
   },
 };
 </script>
-<style>
-#issue-layout {
-  border: 3px solid #d7d7d7;
-  /* text-align: center; */
-}
-#header {
-  text-transform: capitalize;
-}
-
-#issue-layout-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-#num-card h2,
-#num-card h6 {
-  color: #ffffff;
-  padding: 5px;
-  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-}
-</style>
+<style></style>

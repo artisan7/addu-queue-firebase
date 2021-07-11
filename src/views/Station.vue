@@ -1,9 +1,12 @@
 <template>
   <MDBContainer md>
-    <h3 style="text-transform: capitalize">{{ $route.params.station }}</h3>
+    <h3 class="display-1 text-center" style="text-transform: capitalize">
+      {{ $route.params.station }}
+    </h3>
     <station-control
       :stationName="$route.params.station"
       :stageId="stageId"
+      @error="errorMessage"
     ></station-control>
   </MDBContainer>
 </template>
@@ -27,6 +30,11 @@ export default {
       vaccination: 6,
     },
   }),
+  methods: {
+    errorMessage(message) {
+      this.$emit("error", message);
+    },
+  },
 };
 </script>
 

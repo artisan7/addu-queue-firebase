@@ -1,18 +1,9 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
+import { firebaseConfig, userUids } from "./secrets";
 
 import { ref, onUnmounted, computed } from "vue";
-
-// Your web app's Firebase configuration
-var firebaseConfig = {
-  apiKey: "AIzaSyB7_aDpN3NAqRoIKCs7UDMBsE7BFFHZQrE",
-  authDomain: "addu-vaccination-queue.firebaseapp.com",
-  projectId: "addu-vaccination-queue",
-  storageBucket: "addu-vaccination-queue.appspot.com",
-  messagingSenderId: "671678336581",
-  appId: "1:671678336581:web:364ad6f86c6802b0c1dd2c",
-};
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -80,6 +71,8 @@ const queueNumAscending = queueNumCollection.orderBy("queueTime", "asc");
  * @returns Document
  */
 const queueCounterRef = firestore.collection("counter").doc("queueNum");
+const increment = firebase.firestore.FieldValue.increment(1);
+const decrement = firebase.firestore.FieldValue.increment(-1);
 
 export function useQueue() {
   /**
@@ -201,7 +194,6 @@ export function useQueue() {
 
   const finishCurrentNum = async (queueId) => {
     if (queueId === null || queueId === undefined) return;
-    const increment = firebase.firestore.FieldValue.increment(1);
     await queueNumCollection.doc(queueId).update({
       stage: increment,
     });
@@ -237,6 +229,11 @@ export function useQueue() {
     return { id: id, ...queueNum.data() };
   };
 
+  /**
+   * Sends back the number to the back of the queue
+   * @param String id
+   * @returns Promise
+   */
   const unqueueNum = async (id) => {
     return new Promise((resolve, reject) => {
       if (!id) reject("ID is not valid.");
@@ -246,10 +243,11 @@ export function useQueue() {
         .get()
         .then((docRef) => {
           if (!docRef.exists) reject("Could not find queue number.");
-
-          docRef
-            .set({
+          console.log(docRef);
+          docRef.ref
+            .update({
               queueTime: firebase.firestore.FieldValue.serverTimestamp(),
+              stage: decrement,
             })
             .then(() => {
               resolve("Queue number has been set back");
@@ -257,6 +255,28 @@ export function useQueue() {
         })
         .catch((err) => reject(err));
     });
+  };
+
+  const seedUsers = async () => {
+    const stations = ["registration", "screening", "vitals", "vaccination"];
+
+    const batch = firestore.batch();
+
+    await stations.forEach(async (station) => {
+      await userUids[station].forEach(async (uid, ind) => {
+        const stationRef = await firestore
+          .collection("stationDetails")
+          .doc(uid);
+
+        batch.set(stationRef, {
+          currentQueueId: null,
+          stationNum: ind + 1,
+          stationType: station,
+        });
+      });
+    });
+
+    batch.commit().then(() => console.log("Seeding done!"));
   };
 
   return {
@@ -267,5 +287,6 @@ export function useQueue() {
     stationDisplayQueueNums,
     getQueueNumberById,
     unqueueNum,
+    seedUsers,
   };
 }
