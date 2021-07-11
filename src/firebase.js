@@ -192,7 +192,7 @@ export function useQueue() {
 
           // console.log(snapshot);
 
-          const numId = snapshot.id;
+          // const numId = snapshot.id;
 
           // Increment the stage
           const nextStage = snapshot.data().stage + 1;
@@ -203,7 +203,7 @@ export function useQueue() {
           });
 
           transaction.update(stationDetailsRef.doc(auth.currentUser.uid), {
-            currentQueueId: numId,
+            currentQueueId: { id: snapshot.id, ...snapshot.data() },
           });
         });
       });
@@ -232,18 +232,29 @@ export function useQueue() {
     }
   };
 
-  const stationDisplayQueueNums = (stage) => {
+  const stationDisplayQueueNums = (station) => {
+    console.log(station);
+
     const displayQueueNums = ref([]);
 
     // Watch the queue items
     // Also, hook for cleanup when component is unmounted
-    const displayUnsubscribe = queueNumAscending
-      .where("stage", "==", stage)
+    const displayUnsubscribe = stationDetailsRef
+      .where("stationType", "==", station)
+      .orderBy("stationNum", "asc")
       .onSnapshot((snapshot) => {
-        displayQueueNums.value = snapshot.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }))
-          .reverse();
+        displayQueueNums.value = snapshot.docs.map((doc) => {
+          let curr;
+          if (doc.data().currentQueueId) curr = doc.data().currentQueueId.num;
+          else curr = null;
+          return {
+            station: `Station ${doc.data().stationNum}`,
+            currentNum: curr,
+          };
+        });
       });
+
+    console.log("DISPLAY", displayQueueNums);
 
     onUnmounted(displayUnsubscribe);
 
@@ -263,10 +274,8 @@ export function useQueue() {
 
   const getQueueNumberByAuth = async (uid) => {
     try {
-      const queueNumId = await (await stationDetailsRef.doc(uid).get()).data()
+      const queueNum = await (await stationDetailsRef.doc(uid).get()).data()
         .currentQueueId;
-
-      const queueNum = await getQueueNumberById(queueNumId);
 
       return Promise.resolve(queueNum);
     } catch (err) {
