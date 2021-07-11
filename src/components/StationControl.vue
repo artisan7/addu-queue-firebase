@@ -127,8 +127,11 @@ export default {
     const finishCurrent = async () => {
       processing.value = true;
 
-      await finishCurrentNum(currentlyServing.value.id);
-
+      try {
+        await finishCurrentNum(currentlyServing.value.id);
+      } catch (err) {
+        context.emit("error", err);
+      }
       processing.value = false;
       currentlyServing.value = null;
 
@@ -148,7 +151,6 @@ export default {
         })
         .catch((err) => {
           context.emit("error", err);
-          // TODO: Create error handling
           localStorage.setItem(localStorageName.value, null);
           processing.value = false;
         });

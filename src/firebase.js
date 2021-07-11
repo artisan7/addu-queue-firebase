@@ -71,6 +71,14 @@ const queueNumAscending = queueNumCollection.orderBy("queueTime", "asc");
  * @returns Document
  */
 const queueCounterRef = firestore.collection("counter").doc("queueNum");
+
+/**
+ * Reference to Station Details Collection in Firestore
+ * The doc id == userUid
+ * @returns Collection
+ */
+const stationDetailsRef = firestore.collection("stationDetails");
+
 const increment = firebase.firestore.FieldValue.increment(1);
 const decrement = firebase.firestore.FieldValue.increment(-1);
 
@@ -134,16 +142,23 @@ export function useQueue() {
 
   // Function Definition for Station Control
   const callForNextNum = async (stage) => {
-    var nextQueueNum;
-
-    // .get()
-    // .then((snapshot) => {
-    //   snapshot.forEach((doc) => {
-    //     console.log(doc.data());
-    //   });
-    // });
-
     try {
+      const station = ["registration", "screening", "vitals", "vaccination"][
+        stage / 2
+      ];
+      // Check to see if user is authenticated
+      if (
+        auth.currentUser === null ||
+        auth.currentUser === undefined ||
+        !(
+          userUids[station].includes(auth.currentUser.uid) ||
+          userUids.admin.includes(auth.currentUser.uid)
+        )
+      )
+        throw "You are not authorized for this station.";
+
+      var nextQueueNum;
+
       await firestore.runTransaction(async (transaction) => {
         // Warning:
         // What lies before you is very stupid very hacky code
@@ -175,12 +190,20 @@ export function useQueue() {
           // Get the next queue num object
           nextQueueNum = { id: query.docs[0].id, ...snapshot.data() };
 
+          // console.log(snapshot);
+
+          const numId = snapshot.id;
+
           // Increment the stage
           const nextStage = snapshot.data().stage + 1;
 
           // Update the table
           transaction.update(doc, {
             stage: nextStage,
+          });
+
+          transaction.update(stationDetailsRef.doc(auth.currentUser.uid), {
+            currentQueueId: numId,
           });
         });
       });
@@ -193,11 +216,20 @@ export function useQueue() {
   };
 
   const finishCurrentNum = async (queueId) => {
-    if (queueId === null || queueId === undefined) return;
-    await queueNumCollection.doc(queueId).update({
-      stage: increment,
-    });
-    return true;
+    try {
+      if (!auth.currentUser) throw "You are not authenticated.";
+      if (queueId === null || queueId === undefined)
+        throw "You have returned an invalid queue number";
+      await queueNumCollection.doc(queueId).update({
+        stage: increment,
+      });
+      await stationDetailsRef.doc(auth.currentUser.uid).update({
+        currentQueueId: null,
+      });
+      return true;
+    } catch (err) {
+      return Promise.reject(err);
+    }
   };
 
   const stationDisplayQueueNums = (stage) => {
@@ -237,13 +269,16 @@ export function useQueue() {
   const unqueueNum = async (id) => {
     return new Promise((resolve, reject) => {
       if (!id) reject("ID is not valid.");
+      if (!auth.currentUser) reject("You are not authenticated.");
 
       queueNumCollection
         .doc(id)
         .get()
         .then((docRef) => {
           if (!docRef.exists) reject("Could not find queue number.");
-          console.log(docRef);
+          stationDetailsRef.doc(auth.currentUser.uid).update({
+            currentQueueId: null,
+          });
           docRef.ref
             .update({
               queueTime: firebase.firestore.FieldValue.serverTimestamp(),
