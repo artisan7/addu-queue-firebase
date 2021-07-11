@@ -24,7 +24,8 @@
               <MDBDropdownItem
                 v-for="(station, key) in stations"
                 :key="station"
-                :href="`/station/${station}`"
+                :to="`/station/${station}`"
+                href="#"
               >
                 {{ key }}
               </MDBDropdownItem>
