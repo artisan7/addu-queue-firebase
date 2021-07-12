@@ -243,7 +243,7 @@ export function useQueue() {
       .where("stationType", "==", station)
       .orderBy("stationNum", "asc")
       .onSnapshot((snapshot) => {
-        displayQueueNums.value = snapshot.docs.map((doc) => {
+        const data = snapshot.docs.map((doc) => {
           let curr;
           if (doc.data().currentQueueId) curr = doc.data().currentQueueId.num;
           else curr = null;
@@ -252,6 +252,10 @@ export function useQueue() {
             currentNum: curr,
           };
         });
+        const changes = snapshot
+          .docChanges()
+          .map((change) => `Station ${change.doc.data().stationNum}`);
+        displayQueueNums.value = { data, changes };
       });
 
     console.log("DISPLAY", displayQueueNums);
