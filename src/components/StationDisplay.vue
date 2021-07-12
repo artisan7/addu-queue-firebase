@@ -3,10 +3,10 @@ THAT ARE CURRENTLY BEING SERVED IN THE STATION -->
 
 <template>
   <MDBRow>
-    <MDBTable>
+    <MDBTable v-for="(nums, index) in displayNumSplit" :key="index">
       <thead>
         <tr>
-          <th v-for="station in displayNums" :key="station.station" scope="col">
+          <th v-for="station in nums" :key="station.station" scope="col">
             {{ station.station }}
           </th>
         </tr>
@@ -14,7 +14,7 @@ THAT ARE CURRENTLY BEING SERVED IN THE STATION -->
       <tbody>
         <tr>
           <td
-            v-for="station in displayNums"
+            v-for="station in nums"
             :key="station.station"
             class="queue-num"
             :class="{
@@ -31,7 +31,7 @@ THAT ARE CURRENTLY BEING SERVED IN THE STATION -->
 </template>
 
 <script>
-import { watch } from "@vue/runtime-core";
+import { computed, watch } from "@vue/runtime-core";
 import { ref } from "vue";
 import { useQueue } from "../firebase";
 import { MDBRow, MDBTable } from "mdb-vue-ui-kit";
@@ -46,9 +46,13 @@ export default {
 
     // Data vars
     var serveNums = stationDisplayQueueNums(props.stationName);
-    const displayNums = ref(null);
+    const displayNums = ref([]);
 
-    console.log("SERVE NUMS", serveNums);
+    // Computed
+    const displayNumSplit = computed(() => {
+      return [displayNums.value.slice(0, 5), displayNums.value.slice(5, 10)];
+    });
+
     // Watcher to see if there's new values in the array
     watch(serveNums, (newValue, oldValue) => {
       const oldValueIds = oldValue.map((val) => val.currentNum);
@@ -67,7 +71,7 @@ export default {
         });
     });
 
-    return { serveNums, displayNums };
+    return { serveNums, displayNums, displayNumSplit };
   },
 };
 </script>
