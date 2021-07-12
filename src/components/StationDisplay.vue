@@ -31,8 +31,7 @@ THAT ARE CURRENTLY BEING SERVED IN THE STATION -->
 </template>
 
 <script>
-import { computed, watch } from "@vue/runtime-core";
-import { ref } from "vue";
+import { computed, ref, watch } from "@vue/runtime-core";
 import { useQueue } from "../firebase";
 import { MDBRow, MDBTable } from "mdb-vue-ui-kit";
 
@@ -46,32 +45,60 @@ export default {
 
     // Data vars
     var serveNums = stationDisplayQueueNums(props.stationName);
-    const displayNums = ref([]);
+    const alert = new Audio("/alert.wav");
+    const newNums = ref({
+      "Station 1": false,
+      "Station 2": false,
+      "Station 3": false,
+      "Station 4": false,
+      "Station 5": false,
+      "Station 6": false,
+      "Station 7": false,
+      "Station 8": false,
+      "Station 9": false,
+      "Station 10": false,
+    });
 
     // Computed
     const displayNumSplit = computed(() => {
-      return [displayNums.value.slice(0, 5), displayNums.value.slice(5, 10)];
+      if (serveNums.value.data)
+        return [
+          serveNums.value.data.slice(0, 5).map((val) => {
+            return {
+              ...val,
+              new: newNums.value[val.station],
+            };
+          }),
+          serveNums.value.data.slice(5, 10).map((val) => {
+            return {
+              ...val,
+              new: newNums.value[val.station],
+            };
+          }),
+        ];
     });
 
     // Watcher to see if there's new values in the array
-    watch(serveNums, (newValue, oldValue) => {
-      const oldValueIds = oldValue.map((val) => val.currentNum);
+    watch(serveNums, (newValue) => {
+      const changeNums = Object.keys(newNums.value).filter((key) =>
+        newValue.changes.includes(key)
+      );
 
-      // Create a copy of the nums
-      displayNums.value = newValue.slice(0);
+      console.log(changeNums);
 
-      // Filter then indicate if a value is new
-      displayNums.value
-        .filter((val) => !oldValueIds.includes(val.currentNum))
-        .forEach((val) => {
-          val.new = true;
-          setInterval(() => {
-            val.new = false;
-          }, 5000);
-        });
+      if (changeNums.length != 0) playAlert();
+
+      changeNums.forEach((station) => {
+        newNums.value[station] = true;
+        setTimeout(() => (newNums.value[station] = false), 5000);
+      });
     });
 
-    return { serveNums, displayNums, displayNumSplit };
+    function playAlert() {
+      alert.play();
+    }
+
+    return { serveNums, displayNumSplit, playAlert, newNums };
   },
 };
 </script>
