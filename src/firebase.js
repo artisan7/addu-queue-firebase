@@ -352,3 +352,47 @@ export function useQueue() {
     getQueueNumberByAuth,
   };
 }
+
+export function useSeed() {
+
+    const stations = ["registration", "screening", "vitals", "vaccination"];
+
+    const seedUsers = () => {
+      return new Promise( (resolve, reject) => {
+        stations.forEach( async (station) => {
+          try{
+            for( var x = 1; x < 10; x++ ){
+              await auth.createUserWithEmailAndPassword( `s-${x}@${station}.station`, `${station}!stn${x}`);
+            }
+          }catch( err ){
+            reject( err )
+          }
+        })
+        resolve( "Users seeded!" );
+      })
+    }
+
+    const seedStationDetails = async () => {
+
+      const batch = firestore.batch();
+
+      await stations.forEach(async (station) => {
+        await userUids[station].forEach(async (uid, ind) => {
+          const stationRef = await firestore
+            .collection("stationDetails")
+            .doc(uid);
+
+          batch.set(stationRef, {
+            currentQueueId: null,
+            stationNum: ind + 1,
+            stationType: station,
+          });
+        });
+      });
+    }
+
+    return ({
+      seedUsers,
+      seedStationDetails
+    })
+}

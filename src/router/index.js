@@ -7,6 +7,7 @@ import Station from "../views/Station.vue";
 import Display from "../views/Display.vue";
 import SignIn from "../views/SignIn.vue";
 import SignOut from "../views/SignOut.vue";
+import Admin from "../views/Admin.vue";
 
 const { isLogin, user } = useAuthServer();
 
@@ -63,6 +64,14 @@ const routes = [
       authRequired: true,
     },
   },
+  {
+    path: "/admin",
+    name: "Admin",
+    component: Admin,
+    meta: {
+      authRequired: true,
+    },
+  },
 ];
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
@@ -72,7 +81,17 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   if (to.meta.authRequired) {
     if (isLogin.value)
-      if (to.meta.stationRequired) {
+      if( to.path === "/admin" ){
+        if( userUids.admin.includes( user.value.uid ) )
+          next();
+        else {
+          alert("You do not have the authorization to use this page!");
+          next({
+            name: "Home",
+          });
+        }
+      }
+      else if (to.meta.stationRequired) {
         if (
           userUids[to.params.station].includes(user.value.uid) ||
           userUids.admin.includes(user.value.uid)

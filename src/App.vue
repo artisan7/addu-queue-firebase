@@ -64,6 +64,9 @@
             >
           </MDBNavbarItem>
         </template> -->
+        <MDBNavbarItem to="#">
+          <router-link to="/admin" class="nav-link">Admin</router-link>
+        </MDBNavbarItem>
         <MDBNavbarItem v-if="!isLogin" to="#">
           <router-link :to="`/signin`" class="nav-link">Sign In</router-link>
         </MDBNavbarItem>
