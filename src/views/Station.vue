@@ -1,13 +1,18 @@
 <template>
   <MDBContainer md>
-    <h3 class="display-1 text-center" style="text-transform: capitalize">
-      {{ $route.params.station }}
-    </h3>
-    <station-control
-      :stationName="$route.params.station"
-      :stageId="stageId"
-      @error="errorMessage"
-    ></station-control>
+    <div v-if="stationId !== null || stationId !== undefined">
+      <h3 class="display-1 text-center" style="text-transform: capitalize">
+        {{ $route.params.station }}
+      </h3>
+      <station-control
+        :stationName="$route.params.station"
+        :stageId="stageId"
+        @error="errorMessage"
+      ></station-control>
+    </div>
+    <div v-else>
+      <h3 class="display-2">This is not a valid station</h3>
+    </div>
   </MDBContainer>
 </template>
 

@@ -1,15 +1,20 @@
 <template>
   <MDBContainer md class="d-flex flex-column align-items-center">
-    <h3>
-      <span style="text-transform: capitalize">{{
-        $route.params.station
-      }}</span>
-      - Currently Serving #s
-    </h3>
-    <station-display
-      :stationName="$route.params.station"
-      :stageId="stageId"
-    ></station-display>
+    <div v-if="stageId">
+      <h3>
+        <span style="text-transform: capitalize">{{
+          $route.params.station
+        }}</span>
+        - Currently Serving #s
+      </h3>
+      <station-display
+        :stationName="$route.params.station"
+        :stageId="stageId"
+      ></station-display>
+    </div>
+    <div v-else>
+      <h3 class="display-3">This is not a valid station.</h3>
+    </div>
   </MDBContainer>
 </template>
 

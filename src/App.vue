@@ -12,7 +12,17 @@
         <MDBNavbarItem to="#">
           <router-link to="/issue" class="nav-link">Issue Num</router-link>
         </MDBNavbarItem>
-        <MDBNavbarItem>
+        <MDBNavbarItem to="#">
+          <router-link to="/station/registration" class="nav-link"
+            >Registration Controls</router-link
+          >
+        </MDBNavbarItem>
+        <MDBNavbarItem to="#">
+          <router-link to="/display/registration" class="nav-link"
+            >Display Registration</router-link
+          >
+        </MDBNavbarItem>
+        <!-- <MDBNavbarItem>
           <MDBDropdown class="nav-item" v-model="stationDropdown">
             <MDBDropdownToggle
               tag="a"
@@ -31,14 +41,14 @@
               </MDBDropdownItem>
             </MDBDropdownMenu>
           </MDBDropdown>
-        </MDBNavbarItem>
+        </MDBNavbarItem> -->
         <MDBNavbarItem>
           <MDBDropdown class="nav-item" v-model="displayDropdown">
             <MDBDropdownToggle
               tag="a"
               class="nav-link mt-2"
               @click="displayDropdown = !displayDropdown"
-              >Display</MDBDropdownToggle
+              >Monitoring</MDBDropdownToggle
             >
             <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
               <MDBDropdownItem
@@ -52,18 +62,6 @@
           </MDBDropdown>
         </MDBNavbarItem>
 
-        <!-- <template v-for="(station, key) in stations" :key="station">
-          <MDBNavbarItem to="#">
-            <router-link :to="`/station/${station}`" class="nav-link">
-              {{ key }} Controls</router-link
-            >
-          </MDBNavbarItem>
-          <MDBNavbarItem to="#">
-            <router-link :to="`/display/${station}`" class="nav-link"
-              >Display {{ key }}</router-link
-            >
-          </MDBNavbarItem>
-        </template> -->
         <MDBNavbarItem to="#">
           <router-link to="/admin" class="nav-link">Admin</router-link>
         </MDBNavbarItem>
