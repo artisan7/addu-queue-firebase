@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
-// import { userUids } from "../secrets";
-// import { useAuthServer } from "../firebase";
+import { useAuthServer } from "../firebase";
+import { adminUids } from "../secrets";
+
 import Issue from "../views/Issue.vue";
 import Home from "../views/Home.vue";
 import Station from "../views/Station.vue";
@@ -9,7 +10,7 @@ import SignIn from "../views/SignIn.vue";
 import SignOut from "../views/SignOut.vue";
 import Admin from "../views/Admin.vue";
 
-// const { isLogin, user } = useAuthServer();
+const { isLogin, user, permissions } = useAuthServer();
 
 const routes = [
   {
@@ -79,38 +80,46 @@ const router = createRouter({
 });
 
 // router.beforeEach((to, from, next) => {
-//   if (to.meta.authRequired) {
-//     if (isLogin.value)
-//       if( to.path === "/admin" ){
-//         if( userUids.admin.includes( user.value.uid ) )
-//           next();
-//         else {
-//           alert("You do not have the authorization to use this page!");
-//           next({
-//             name: "Home",
-//           });
-//         }
-//       }
-//       else if (to.meta.stationRequired) {
-//         if (
-//           userUids[to.params.station].includes(user.value.uid) ||
-//           userUids.admin.includes(user.value.uid)
-//         )
-//           next();
-//         else {
-//           alert("You do not have the authorization to use this page!");
-//           next({
-//             name: "Home",
-//           });
-//         }
-//       } else next();
-//     else {
-//       alert("You must be signed in to see this page!");
-//       next({
-//         name: "Sign In",
-//       });
-//     }
-//   } else next();
+//   console.log("Hello world", userPermissions);
+//   next();
 // });
+
+router.beforeEach((to, from, next) => {
+  permissions().then((userPermissions) => {
+    // console.log("User Permissions:", userPermissions);
+    // console.log(adminUids);
+    // // console.log(user.value.uid);
+    if (to.meta.authRequired) {
+      if (isLogin.value)
+        if (to.path === "/admin") {
+          if (adminUids.includes(user.value.uid)) next();
+          else {
+            alert("You do not have the authorization to use this page!");
+            next({
+              name: "Home",
+            });
+          }
+        } else if (to.meta.stationRequired) {
+          if (
+            userPermissions[to.params.station].includes(user.value.uid) ||
+            adminUids.includes(user.value.uid)
+          )
+            next();
+          else {
+            alert("You do not have the authorization to use this page!");
+            next({
+              name: "Home",
+            });
+          }
+        } else next();
+      else {
+        alert("You must be signed in to see this page!");
+        next({
+          name: "Sign In",
+        });
+      }
+    } else next();
+  });
+});
 
 export default router;
