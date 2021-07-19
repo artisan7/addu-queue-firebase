@@ -133,6 +133,23 @@ export function useQueue() {
           num: newQueueNo,
           queueTime: firebase.firestore.FieldValue.serverTimestamp(),
           stage: 0,
+          timestamps: {
+            issue: firebase.firestore.FieldValue.serverTimestamp(),
+            registration: null,
+            screening: null,
+            vitals: null,
+            vaccination: null,
+            observation: null,
+            exit: null,
+          },
+          rejected: null,
+          // issueTime: firebase.firestore.FieldValue.serverTimestamp(),
+          // registrationTime: null,
+          // screeningTime: null,
+          // vitalsTime: null,
+          // vaccinationTime: null,
+          // postTime: null,
+          // exitTime: null,
         });
       });
     });
@@ -160,14 +177,7 @@ export function useQueue() {
       var nextQueueNum;
 
       await firestore.runTransaction(async (transaction) => {
-        // Warning:
-        // What lies before you is very stupid very hacky code
-        // TODO: MAKE THIS BETTER
-        // console.log("BEFORE QUERY");
-
-        // Get the first possible queue number with the appropriate stage
-        // Theoretically, this should be enough, but noooooo
-        // Firestore is too picky
+        // Get the latest num with the correct stage
         let query = await queueNumAscending
           .where("stage", "==", stage)
           .limit(1)
@@ -177,9 +187,7 @@ export function useQueue() {
         // Throw an error
         if (query.empty) throw "No one is in the waiting list.";
 
-        // Get the document reference from the collection...
-        // With the document id we get from the query
-        var doc = queueNumCollection.doc(query.docs[0].id);
+        const doc = query.docs[0].ref;
 
         // console.log("before transaction", query, doc);
         // Finally do the transaction.
@@ -190,10 +198,6 @@ export function useQueue() {
           // Get the next queue num object
           nextQueueNum = { id: query.docs[0].id, ...snapshot.data() };
 
-          // console.log(snapshot);
-
-          // const numId = snapshot.id;
-
           // Increment the stage
           const nextStage = snapshot.data().stage + 1;
 
@@ -201,7 +205,6 @@ export function useQueue() {
           transaction.update(doc, {
             stage: nextStage,
           });
-
           transaction.update(stationDetailsRef.doc(auth.currentUser.uid), {
             currentQueueId: { id: snapshot.id, ...snapshot.data() },
           });
@@ -215,17 +218,26 @@ export function useQueue() {
     return nextQueueNum;
   };
 
-  const finishCurrentNum = async (queueId) => {
+  const finishCurrentNum = async (queueId, station = "registration") => {
     try {
+      // Authenticate the user
       if (!auth.currentUser) throw "You are not authenticated.";
+
+      // Check if queue Id is invalid
       if (queueId === null || queueId === undefined)
         throw "You have returned an invalid queue number";
+
+      // Update the queue item
       await queueNumCollection.doc(queueId).update({
         stage: increment,
+        [`timestamps.${station}`]: firebase.firestore.FieldValue.serverTimestamp(),
       });
+
+      // Update the station details
       await stationDetailsRef.doc(auth.currentUser.uid).update({
         currentQueueId: null,
       });
+
       return true;
     } catch (err) {
       return Promise.reject(err);
@@ -233,8 +245,6 @@ export function useQueue() {
   };
 
   const stationDisplayQueueNums = (station) => {
-    console.log(station);
-
     const displayQueueNums = ref([]);
 
     // Watch the queue items
@@ -257,8 +267,6 @@ export function useQueue() {
           .map((change) => `Station ${change.doc.data().stationNum}`);
         displayQueueNums.value = { data, changes };
       });
-
-    console.log("DISPLAY", displayQueueNums);
 
     onUnmounted(displayUnsubscribe);
 
@@ -318,28 +326,6 @@ export function useQueue() {
     });
   };
 
-  const seedUsers = async () => {
-    const stations = ["registration", "screening", "vitals", "vaccination"];
-
-    const batch = firestore.batch();
-
-    await stations.forEach(async (station) => {
-      await userUids[station].forEach(async (uid, ind) => {
-        const stationRef = await firestore
-          .collection("stationDetails")
-          .doc(uid);
-
-        batch.set(stationRef, {
-          currentQueueId: null,
-          stationNum: ind + 1,
-          stationType: station,
-        });
-      });
-    });
-
-    batch.commit().then(() => console.log("Seeding done!"));
-  };
-
   return {
     queueItems,
     issueQueueNum,
@@ -348,51 +334,92 @@ export function useQueue() {
     stationDisplayQueueNums,
     getQueueNumberById,
     unqueueNum,
-    seedUsers,
     getQueueNumberByAuth,
   };
 }
 
-export function useSeed() {
+export function useAdmin() {
+  const stations = ["registration", "screening", "vitals", "vaccination"];
 
-    const stations = ["registration", "screening", "vitals", "vaccination"];
-
-    const seedUsers = () => {
-      return new Promise( (resolve, reject) => {
-        stations.forEach( async (station) => {
-          try{
-            for( var x = 1; x < 10; x++ ){
-              await auth.createUserWithEmailAndPassword( `s-${x}@${station}.station`, `${station}!stn${x}`);
-            }
-          }catch( err ){
-            reject( err )
-          }
-        })
-        resolve( "Users seeded!" );
-      })
-    }
-
-    const seedStationDetails = async () => {
-
+  const seedUsers = async () => {
+    try {
       const batch = firestore.batch();
 
-      await stations.forEach(async (station) => {
-        await userUids[station].forEach(async (uid, ind) => {
-          const stationRef = await firestore
-            .collection("stationDetails")
-            .doc(uid);
+      batch.set(queueCounterRef, {
+        counter: 0,
+      });
 
-          batch.set(stationRef, {
-            currentQueueId: null,
-            stationNum: ind + 1,
-            stationType: station,
-          });
+      for (const station of stations) {
+        let uids = [];
+        for (let x = 1; x <= 10; x++) {
+          console.log(`Creating user ${x} of station ${station}`);
+          const userCred = await auth.createUserWithEmailAndPassword(
+            `station-${x}@${station}.station`,
+            `${station}!stn${x}`
+          );
+          uids.push(userCred.user.uid);
+          batch.set(
+            firestore.collection("stationDetails").doc(userCred.user.uid),
+            {
+              currentQueueId: null,
+              stationNum: x,
+              stationType: station,
+            }
+          );
+        }
+        batch.set(firestore.collection("permissions").doc(station), {
+          ids: uids,
+        });
+      }
+      await batch.commit();
+      return Promise.resolve("Done seeding!");
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  };
+
+  const resetQueue = async () => {
+    try {
+      const writeBatch = firestore.batch();
+      let deleteBatch = firestore.batch();
+      const stationDetailsData = await firestore
+        .collection("stationDetails")
+        .get();
+      const queueItemsData = await queueNumCollection.get();
+
+      writeBatch.set(queueCounterRef, {
+        count: 0,
+      });
+
+      stationDetailsData.docs.forEach((docRef) => {
+        writeBatch.update(docRef.ref, {
+          currentQueueId: null,
         });
       });
-    }
 
-    return ({
-      seedUsers,
-      seedStationDetails
-    })
+      let i = 0;
+
+      for (const doc of queueItemsData.docs) {
+        deleteBatch.delete(doc.ref);
+        i++;
+        if (i > 400) {
+          i = 0;
+          await deleteBatch.commit();
+          deleteBatch = firestore.batch();
+        }
+      }
+
+      await deleteBatch.commit();
+      await writeBatch.commit();
+
+      return Promise.resolve("Done resetting the queue!");
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  };
+
+  return {
+    seedUsers,
+    resetQueue,
+  };
 }

@@ -1,11 +1,24 @@
-export const firebaseConfig = {
-  apiKey: "AIzaSyB7_aDpN3NAqRoIKCs7UDMBsE7BFFHZQrE",
-  authDomain: "addu-vaccination-queue.firebaseapp.com",
-  projectId: "addu-vaccination-queue",
-  storageBucket: "addu-vaccination-queue.appspot.com",
-  messagingSenderId: "671678336581",
-  appId: "1:671678336581:web:364ad6f86c6802b0c1dd2c",
+// export const firebaseConfig = {
+//   apiKey: "AIzaSyB7_aDpN3NAqRoIKCs7UDMBsE7BFFHZQrE",
+//   authDomain: "addu-vaccination-queue.firebaseapp.com",
+//   projectId: "addu-vaccination-queue",
+//   storageBucket: "addu-vaccination-queue.appspot.com",
+//   messagingSenderId: "671678336581",
+//   appId: "1:671678336581:web:364ad6f86c6802b0c1dd2c",
+// };
+
+export var firebaseConfig = {
+  apiKey: "AIzaSyC_48Ey12HoKX3em425JGInDuMYjL4qSS8",
+  authDomain: "cuakiboards.firebaseapp.com",
+  databaseURL: "https://cuakiboards.firebaseio.com",
+  projectId: "cuakiboards",
+  storageBucket: "cuakiboards.appspot.com",
+  messagingSenderId: "563708874287",
+  appId: "1:563708874287:web:cb2473054859eb088bc0da",
+  measurementId: "G-JL89XGK9YF",
 };
+
+// Initialize Firebase
 
 export const serviceAccount = {
   type: "service_account",
