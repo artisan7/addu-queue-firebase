@@ -40,13 +40,13 @@ export const firebaseConfig = {
 }
 ```
 
-5. Add your uid in secrets.js
+5. Add your admin's uid in secrets.js
 
 ```javascript
 export const adminUid = "...";
 ```
 
-6. Seed your database in the Admin page.
+6. You can now access the Admin page with your admin account. Seed your database in the Admin page.
 
 7. Create an index in Firestore for the collection "`queue`":
 
@@ -56,5 +56,16 @@ export const adminUid = "...";
    | --------- | ----- |
    | queueTime | asc   |
    | stage     | asc   |
+
+    </center>
+
+8. Create an index in Firestore for the collection "`stationDetails`":
+
+   <center>
+
+   | Field       | Order |
+   | ----------- | ----- |
+   | stationType | asc   |
+   | stationNum  | asc   |
 
     </center>

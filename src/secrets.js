@@ -19,7 +19,6 @@ export var firebaseConfig = {
 };
 
 // Initialize Firebase
-
 export const serviceAccount = {
   type: "service_account",
   project_id: "addu-vaccination-queue",
@@ -36,61 +35,4 @@ export const serviceAccount = {
     "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-kzf6i%40addu-vaccination-queue.iam.gserviceaccount.com",
 };
 
-const registration = [
-  "gOsaOFwGkkML7tQ3zflZO2W77p63",
-  "xRDeEfpzVgTBv6AJkK08wSFTU1j2",
-  "HnI1H2xdvxPzP4e0zByDXJygrbd2",
-  "RVr2w7PqFmWwIWMKAjKrvBrjvCx2",
-  "hI3vmSiKp4ag8yQfEBE5F6P3XDk2",
-  "eWaplNcUmtXwu78IzVAhhk7DiIr2",
-  "pxDSYeXkMfSsWClICLOgNWA0IVC3",
-  "ojEMR0e5K7gKMTlp2TaGqeke2eG3",
-  "hLzVtYm1HSZxsvR79DkdNvEnIkE2",
-  "NFtAaKrJ6HbTUPZcfJnpv3zRPho2",
-];
-const screening = [
-  "ZJbm99avsmhpWSqBxihx7OIjHzX2",
-  "pYfVKyYK5XXGfFpxb9xLLMtgwQS2",
-  "F8HledzGLTRiv5AIwaGcnlVm3m03",
-  "c5RLZPzhROUUB3bOtRLZoqzLyat2",
-  "K62DQpSxo5SmVvr11xUpfwqfW5Q2",
-  "Mwg9TFErZAWl3xMyKEbmqBLPHWz2",
-  "BVSYrol1rATFHced9YcKfDYxXEq1",
-  "oazfv9IRrHSQWSnAJMP7YKG7SG22",
-  "3ROtOnb4ahcgj0n2WaLngepURRK2",
-  "lsZyFeHLePZQCB7oV9mnmRlT3tu1",
-];
-const vitals = [
-  "DmwJKH7K6eQRIZp5P7FnZ7kWuv23",
-  "49qJiB8Dt7eEliEVbtp3mQu03nm1",
-  "mQXp8ySxwGhBpMttOCuhD2lapHS2",
-  "U3gcvDeCdjcjIT1f7XxZ0ThSJaC2",
-  "BMINOfbFZxdXrQJbcrGOc25WkOm2",
-  "LtgQX66Dy0MXvSCIqljLIW0FEeQ2",
-  "uW1U8gnEDxhSgL7iXkJv5i5QBVQ2",
-  "6QPWlQwSMHQCvcv4GgjGaAHnOR83",
-  "iCHmDZsVA4Vl25v8DJL9cg5G6vE2",
-  "roKFJv1s3wTeIYmOHe2HzS9mdSo2",
-];
-const vaccination = [
-  "akEsrGYB2ONp4AE83uTNjhOzhyK2",
-  "qaMTwWDUVPY00dlU0XH0DFhd4cm1",
-  "u53uhDMgrdRn49u0hnvIYicjjhc2",
-  "8afj5DUe7fYSJccL42Hh4wz6hOk2",
-  "J19IXWJD27MDHKH2hO1TlioSBIj2",
-  "FNNsPrLvjzV3DRMsOXvOs4ANwoD3",
-  "QJLiog5Ld5cbuExU4zz6KtNo5F42",
-  "UlJZMqZYqtRTf9gp1VmAaXSW0KZ2",
-  "DxwTR1cuszNVC6KgKvlVZnHYXc13",
-  "Ea2fJBwNQvOnKXp9iDw7noLHSHQ",
-];
-
-const admin = ["dRojiWD0xyev6lV89h4w8CYKprQ2"];
-
-export const userUids = {
-  registration,
-  screening,
-  vitals,
-  vaccination,
-  admin,
-};
+export const adminUids = ["H1Mz3R9Y6vVB8ME91LT7jDSN7EH3"];

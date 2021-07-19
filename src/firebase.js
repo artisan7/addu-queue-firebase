@@ -1,29 +1,61 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
-import { firebaseConfig, userUids } from "./secrets";
-
+import { firebaseConfig, adminUids } from "./secrets";
 import { ref, onUnmounted, computed } from "vue";
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
+const firestore = firebase.firestore();
 
+/** Contains the user ids of the auth users and their permissions
+ *
+ * Warning: No security whatsoever.
+ */
+const permissions = () => {
+  return new Promise((resolve, reject) => {
+    try {
+      let userPermissions = {};
+      firestore
+        .collection("permissions")
+        .get()
+        .then((snapshot) => {
+          snapshot.docs.reduce((mapVal, doc) => {
+            // console.log("IN LOOP: ", mapVal, doc.data().ids);
+            mapVal[doc.id] = doc.data().ids;
+            return mapVal;
+          }, userPermissions);
+          resolve(userPermissions);
+        });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+/** Hooks for router */
 export function useAuthServer() {
   const user = ref(null);
   auth.onAuthStateChanged((_user) => (user.value = _user));
   const isLogin = computed(() => user.value !== null);
 
-  return { isLogin, user };
+  return { isLogin, user, permissions };
 }
 
+/** Hooks for firebase auth in client */
 export function useAuth() {
   const user = ref(null);
   const unsubscribe = auth.onAuthStateChanged((_user) => (user.value = _user));
   onUnmounted(unsubscribe);
   const isLogin = computed(() => user.value !== null);
 
+  /**
+   * Signs in user
+   * @param String email
+   * @param String password
+   */
   const signInWithForm = async (email, password) => {
     return new Promise((resolve, reject) => {
       auth
@@ -35,11 +67,7 @@ export function useAuth() {
     });
   };
 
-  /**
-   * 描述
-   * @date 2021-07-08
-   * @returns {any}
-   */
+  /** Signs out user */
   const signOut = () => {
     return new Promise((resolve, reject) => {
       auth
@@ -52,42 +80,23 @@ export function useAuth() {
   return { user, isLogin, signInWithForm, signOut };
 }
 
-const firestore = firebase.firestore();
-
-/**
- * Collection of all queue numbers
- * @returns Collection
- */
+/*** Collection of all queue numbers */
 const queueNumCollection = firestore.collection("queue");
 
-/**
- * Collection of queue numbers in ascending order
- * @returns Collection
- */
+/*** Collection of queue numbers in ascending order */
 const queueNumAscending = queueNumCollection.orderBy("queueTime", "asc");
 
-/**
- * Counter for the queue
- * @returns Document
- */
+/** Counter for the queue */
 const queueCounterRef = firestore.collection("counter").doc("queueNum");
 
-/**
- * Reference to Station Details Collection in Firestore
- * The doc id == userUid
- * @returns Collection
- */
+/*** Reference to Station Details Collection in Firestore */
 const stationDetailsRef = firestore.collection("stationDetails");
 
 const increment = firebase.firestore.FieldValue.increment(1);
 const decrement = firebase.firestore.FieldValue.increment(-1);
 
 export function useQueue() {
-  /**
-   * Gets the queue items as a VueJS ref
-   * @date 2021-07-05
-   * @returns ref
-   */
+  /*** Gets the queue items as a VueJS ref */
   const queueItems = ref([]);
 
   // Watch the queue items
@@ -104,8 +113,6 @@ export function useQueue() {
   /**
    * Issue Queue No
    * Uses transactions to get the current queue no.
-   * @date 2021-07-05
-   * @returns Number
    */
   const issueQueueNum = async () => {
     // Return value to indicate the number to be issued
@@ -164,12 +171,14 @@ export function useQueue() {
         stage / 2
       ];
       // Check to see if user is authenticated
+      const userUids = await permissions();
+
       if (
         auth.currentUser === null ||
         auth.currentUser === undefined ||
         !(
           userUids[station].includes(auth.currentUser.uid) ||
-          userUids.admin.includes(auth.currentUser.uid)
+          adminUids.includes(auth.currentUser.uid)
         )
       )
         throw "You are not authorized for this station.";
@@ -212,6 +221,7 @@ export function useQueue() {
       });
     } catch (err) {
       // Return the error
+      console.error(err);
       return Promise.reject(err);
     }
 
@@ -244,6 +254,11 @@ export function useQueue() {
     }
   };
 
+  /**
+   * Displays the details of each station and their assigned queue numbers
+   * @param String station - name of the station category
+   * @returns
+   */
   const stationDisplayQueueNums = (station) => {
     const displayQueueNums = ref([]);
 
@@ -260,6 +275,7 @@ export function useQueue() {
           return {
             station: `Station ${doc.data().stationNum}`,
             currentNum: curr,
+            ...doc.data(),
           };
         });
         const changes = snapshot
@@ -273,6 +289,7 @@ export function useQueue() {
     return displayQueueNums;
   };
 
+  /** Get queue number by its id */
   const getQueueNumberById = async (id) => {
     if (id == "" || id == null) return;
     let queueNum;
@@ -284,6 +301,7 @@ export function useQueue() {
     return { id: id, ...queueNum.data() };
   };
 
+  /** Get the queue number assigned to the authUser's station */
   const getQueueNumberByAuth = async (uid) => {
     try {
       const queueNum = await (await stationDetailsRef.doc(uid).get()).data()
@@ -297,8 +315,7 @@ export function useQueue() {
 
   /**
    * Sends back the number to the back of the queue
-   * @param String id
-   * @returns Promise
+   * @param String id - ID of the queue number
    */
   const unqueueNum = async (id) => {
     return new Promise((resolve, reject) => {
@@ -338,9 +355,15 @@ export function useQueue() {
   };
 }
 
+/** Hooks for the Admin page. Requires the admin user */
 export function useAdmin() {
   const stations = ["registration", "screening", "vitals", "vaccination"];
 
+  /**
+   * Seed the entire firestore database
+   *
+   * Creates the queue counter, the station accounts, and the station details
+   */
   const seedUsers = async () => {
     try {
       const batch = firestore.batch();
@@ -378,6 +401,15 @@ export function useAdmin() {
     }
   };
 
+  /**
+   * Resets the queue.
+   *
+   * Station Details collection will have their current queue numbers set to null
+   *
+   * The entire queue number collection will be deleted
+   *
+   * Resets counter to 0
+   */
   const resetQueue = async () => {
     try {
       const writeBatch = firestore.batch();
