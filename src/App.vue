@@ -22,26 +22,6 @@
             >Display Registration</router-link
           >
         </MDBNavbarItem>
-        <!-- <MDBNavbarItem>
-          <MDBDropdown class="nav-item" v-model="stationDropdown">
-            <MDBDropdownToggle
-              tag="a"
-              class="nav-link mt-2"
-              @click="stationDropdown = !stationDropdown"
-              >Station</MDBDropdownToggle
-            >
-            <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
-              <MDBDropdownItem
-                v-for="(station, key) in stations"
-                :key="station"
-                :to="`/station/${station}`"
-                href="#"
-              >
-                {{ key }}
-              </MDBDropdownItem>
-            </MDBDropdownMenu>
-          </MDBDropdown>
-        </MDBNavbarItem> -->
         <MDBNavbarItem>
           <MDBDropdown class="nav-item" v-model="displayDropdown">
             <MDBDropdownToggle
