@@ -213,6 +213,7 @@ export function useQueue() {
           newData.timestamps[
             station
           ] = firebase.firestore.FieldValue.serverTimestamp();
+          newData.stage = newData.stage + 1;
 
           // Update the table
           transaction.update(doc, newData);
@@ -380,6 +381,88 @@ export function useQueue() {
     unqueueNum,
     rejectNum,
     getQueueNumberByAuth,
+  };
+}
+
+/** Hook for monitoring pages */
+export function useMonitoring(stage) {
+  const station = [
+    "registration",
+    "screening",
+    "vitals",
+    "vaccination",
+    "post",
+    "exit",
+  ][stage / 2];
+
+  /** Get a list of queue numbers in the current station */
+  const getStationQueueList = () => {
+    const queueList = ref(null);
+
+    queueNumAscending.where("stage", "==", stage).onSnapshot((snapshot) => {
+      queueList.value = snapshot.docs.map((doc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        };
+      });
+    });
+
+    return queueList;
+  };
+
+  const advanceQueueNumber = (id) => {
+    return new Promise((resolve, reject) => {
+      queueNumCollection
+        .doc(id)
+        .get()
+        .then((docRef) => {
+          if (!docRef.exists) reject("Number does not exist.");
+
+          const newTimestamp = docRef.data().timestamps;
+          newTimestamp[
+            station
+          ] = firebase.firestore.FieldValue.serverTimestamp();
+
+          docRef.ref
+            .update({
+              stage: increment,
+              timestamps: newTimestamp,
+            })
+            .then(() => {
+              resolve("Update successfull!");
+            })
+            .catch((err) => reject(err));
+        })
+        .catch((err) => reject(err));
+    });
+  };
+
+  const rejectQueueNumber = (id) => {
+    return new Promise((resolve, reject) => {
+      queueNumCollection
+        .doc(id)
+        .get()
+        .then((docRef) => {
+          if (!docRef.exists) reject("Number does not exist.");
+
+          docRef.ref
+            .update({
+              stage: -1,
+            })
+            .then(() => {
+              resolve("Rejection successfull!");
+            })
+            .catch((err) => reject(err));
+        })
+        .catch((err) => reject(err));
+    });
+  };
+
+  return {
+    getStationQueueList,
+    advanceQueueNumber,
+    rejectQueueNumber,
   };
 }
 
