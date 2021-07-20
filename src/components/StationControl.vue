@@ -41,13 +41,11 @@
           >FINISH</MDBBtn
         >
         <h2 class="lead">Finish with current patient</h2>
-      </div>
-
-      <div v-if="this.currentlyServing">
         <MDBBtn
           color="danger"
           :disabled="processing"
           @click="unqueueNumLocal"
+          outline
           size="sm"
           >Send Back</MDBBtn
         >
@@ -55,6 +53,19 @@
           Send current patient back to the queue<br />
           <small class="text-danger"
             >Only do this when the patient is late or missing</small
+          >
+        </h2>
+        <MDBBtn
+          color="danger"
+          :disabled="processing"
+          @click="unqueueNumLocal"
+          size="sm"
+          >Reject</MDBBtn
+        >
+        <h2 class="lead">
+          Remove current patient from the queue<br />
+          <small class="text-danger"
+            >Only do this when the patient is not valid for vaccination</small
           >
         </h2>
       </div>

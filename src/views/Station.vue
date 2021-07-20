@@ -1,6 +1,6 @@
 <template>
   <MDBContainer md>
-    <div v-if="stationId !== null || stationId !== undefined">
+    <div v-if="stageId !== null || stageId !== undefined">
       <h3 class="display-1 text-center" style="text-transform: capitalize">
         {{ $route.params.station }}
       </h3>

@@ -1,7 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
-import { firebaseConfig, adminUids } from "./secrets";
+import { firebaseConfig } from "./secrets";
 import { ref, onUnmounted, computed } from "vue";
 
 // Initialize Firebase
@@ -149,7 +149,6 @@ export function useQueue() {
             observation: null,
             exit: null,
           },
-          rejected: null,
           // issueTime: firebase.firestore.FieldValue.serverTimestamp(),
           // registrationTime: null,
           // screeningTime: null,
@@ -170,18 +169,17 @@ export function useQueue() {
       const station = ["registration", "screening", "vitals", "vaccination"][
         stage / 2
       ];
-      // Check to see if user is authenticated
-      const userUids = await permissions();
 
-      if (
-        auth.currentUser === null ||
-        auth.currentUser === undefined ||
-        !(
-          userUids[station].includes(auth.currentUser.uid) ||
-          adminUids.includes(auth.currentUser.uid)
-        )
-      )
-        throw "You are not authorized for this station.";
+      // Check to see if user is authenticated
+      // if (
+      //   auth.currentUser === null ||
+      //   auth.currentUser === undefined ||
+      //   !(
+      //     userUids[station].includes(auth.currentUser.uid) ||
+      //     adminUids.includes(auth.currentUser.uid)
+      //   )
+      // )
+      //   throw "You are not authorized for this station.";
 
       var nextQueueNum;
 
@@ -208,14 +206,18 @@ export function useQueue() {
           nextQueueNum = { id: query.docs[0].id, ...snapshot.data() };
 
           // Increment the stage
-          const nextStage = snapshot.data().stage + 1;
+          // const nextStage = snapshot.data().stage + 1;
+
+          // Update the timestamps
+          const newData = snapshot.data();
+          newData.timestamps[
+            station
+          ] = firebase.firestore.FieldValue.serverTimestamp();
 
           // Update the table
-          transaction.update(doc, {
-            stage: nextStage,
-          });
+          transaction.update(doc, newData);
           transaction.update(stationDetailsRef.doc(auth.currentUser.uid), {
-            currentQueueId: { id: snapshot.id, ...snapshot.data() },
+            currentQueueId: { id: snapshot.id, ...newData },
           });
         });
       });
@@ -317,7 +319,7 @@ export function useQueue() {
    * Sends back the number to the back of the queue
    * @param String id - ID of the queue number
    */
-  const unqueueNum = async (id) => {
+  const unqueueNum = (id) => {
     return new Promise((resolve, reject) => {
       if (!id) reject("ID is not valid.");
       if (!auth.currentUser) reject("You are not authenticated.");
@@ -343,6 +345,31 @@ export function useQueue() {
     });
   };
 
+  const rejectNum = (id) => {
+    return new Promise((resolve, reject) => {
+      if (!id) reject("ID is not valid.");
+      if (!auth.currentUser) reject("You are not authenticated.");
+
+      queueNumCollection
+        .doc(id)
+        .get()
+        .then((docRef) => {
+          if (!docRef.exists)
+            if (!docRef.exists) reject("Could not find queue number.");
+          stationDetailsRef.doc(auth.currentUser.uid).update({
+            currentQueueId: null,
+          });
+          docRef.ref
+            .update({
+              stage: -1,
+            })
+            .then(() => {
+              resolve("Queue number has been rejected");
+            });
+        });
+    });
+  };
+
   return {
     queueItems,
     issueQueueNum,
@@ -351,6 +378,7 @@ export function useQueue() {
     stationDisplayQueueNums,
     getQueueNumberById,
     unqueueNum,
+    rejectNum,
     getQueueNumberByAuth,
   };
 }
@@ -450,8 +478,33 @@ export function useAdmin() {
     }
   };
 
+  const runTestQueries = () => {
+    queueNumCollection
+      .orderBy("queueTime", "asc")
+      .get()
+      .then((snapshot) => {
+        console.log("Issue Num OK!", snapshot);
+      });
+    stationDetailsRef
+      .where("stationType", "==", "registration")
+      .orderBy("stationNum", "asc")
+      .get()
+      .then((snapshot) => {
+        console.log("Display OK!", snapshot);
+      });
+    queueNumAscending
+      .where("stage", "==", 0)
+      .where("rejected", "==", null)
+      .limit(1)
+      .get()
+      .then((snapshot) => {
+        console.log("Station Control OK!", snapshot);
+      });
+  };
+
   return {
     seedUsers,
     resetQueue,
+    runTestQueries,
   };
 }

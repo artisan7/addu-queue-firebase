@@ -12,6 +12,7 @@
         "core-js": "^3.6.5",
         "firebase": "^8.7.0",
         "firebase-admin": "^9.10.0",
+        "lodash": "^4.17.21",
         "mdb-vue-ui-kit": "^1.0.0",
         "vue": "^3.0.0",
         "vue-router": "^4.0.0-0"
