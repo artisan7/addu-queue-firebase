@@ -57,15 +57,6 @@
     </MDBCollapse>
   </MDBNavbar>
   <router-view v-bind="$attrs" @error="errorMessage" />
-  <div
-    class="alert alert-danger m-5 fixed-top"
-    :class="{
-      active: error,
-    }"
-    role="alert"
-  >
-    {{ errorString }}
-  </div>
 </template>
 
 <script>
@@ -111,24 +102,12 @@ export default {
     const collapse1 = ref(false);
     const stationDropdown = ref(false);
     const displayDropdown = ref(false);
-    const error = ref(false);
-    const errorString = ref("");
 
-    function errorMessage(message) {
-      error.value = true;
-      setTimeout(() => {
-        error.value = false;
-      }, 2000);
-      errorString.value = message;
-    }
     return {
       collapse1,
       stationDropdown,
       displayDropdown,
       isLogin,
-      error,
-      errorString,
-      errorMessage,
     };
   },
 };

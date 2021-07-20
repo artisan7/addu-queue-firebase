@@ -71,19 +71,6 @@
       </div>
     </MDBCardBody>
   </MDBCard>
-  <!-- <section id="legend">
-    <h5>Notes:</h5>
-    <ul>
-      <li class="notes">Call Next # - Calling next number</li>
-      <li class="notes">
-        Finish - When you are done with your current patient
-      </li>
-      <li class="notes">
-        Call Prev # - Call the ones you have skipped because he/she didn't show
-        up
-      </li>
-    </ul>
-  </section> -->
 </template>
 
 <script>
@@ -92,6 +79,7 @@ import { ref } from "vue";
 import { useQueue, useAuth } from "../firebase";
 import { MDBCard, MDBCardBody, MDBBtn } from "mdb-vue-ui-kit";
 import QueueNumberCard from "./QueueNumberCard";
+import { createToast } from "mosha-vue-toastify";
 
 export default {
   name: "StationControl",
@@ -106,7 +94,7 @@ export default {
       required: true,
     },
   },
-  setup(props, context) {
+  setup(props) {
     // Hooks
     const {
       callForNextNum,
@@ -136,7 +124,16 @@ export default {
         await finishCurrentNum(currentlyServing.value.id);
         currentlyServing.value = null;
       } catch (err) {
-        context.emit("error", err);
+        createToast(
+          {
+            title: "Error",
+            description: err,
+          },
+          {
+            type: "danger",
+            position: "top-center",
+          }
+        );
       }
       processing.value = false;
     };
@@ -152,7 +149,16 @@ export default {
           processing.value = false;
         })
         .catch((err) => {
-          context.emit("error", err);
+          createToast(
+            {
+              title: "Error",
+              description: err,
+            },
+            {
+              type: "danger",
+              position: "top-center",
+            }
+          );
           processing.value = false;
         });
     };
@@ -170,7 +176,18 @@ export default {
         .then(() => {
           currentlyServing.value = null;
         })
-        .catch((err) => context.emit("error", err));
+        .catch((err) =>
+          createToast(
+            {
+              title: "Error",
+              description: err,
+            },
+            {
+              type: "danger",
+              position: "top-center",
+            }
+          )
+        );
     }
 
     processing.value = true;
@@ -184,9 +201,16 @@ export default {
             processing.value = false;
           })
           .catch(() => {
-            context.emit(
-              "error",
-              "Something went wrong in the loading of the data."
+            createToast(
+              {
+                title: "Error",
+                description:
+                  "Something went wrong with the loading of the data",
+              },
+              {
+                type: "danger",
+                position: "top-center",
+              }
             );
           });
       }

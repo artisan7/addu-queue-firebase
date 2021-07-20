@@ -106,7 +106,7 @@ export default {
   props: ["stationName", "stationStage"],
   emits: ["error", "success"],
   components: { MDBBtn, MDBCard, MDBCardBody, MDBCardTitle, MDBCardText },
-  setup(props, context) {
+  setup(props) {
     const { getStationQueueList, advanceQueueNumber } = useMonitoring(
       props.stationStage
     );
@@ -143,28 +143,49 @@ export default {
     });
 
     const selectQueueNumber = (ind) => {
-      // console.log("SELECTING", ind);
       currentQueueNumber.value = queueList.value[ind];
-      // console.log("NUM:", currentQueueNumber.value);
     };
 
     const advanceNum = () => {
       if (!currentQueueNumber.value) {
-        // context.emit("error", "No number selected.");
-        createToast({
-          title: "Error",
-          description: "No number selected.",
-        });
+        createToast(
+          {
+            title: "Error",
+            description: "No number selected.",
+          },
+          {
+            type: "warning",
+            position: "top-center",
+          }
+        );
         return;
       }
 
       advanceQueueNumber(currentQueueNumber.value.id)
         .then((message) => {
-          context.emit("success", message);
+          createToast(
+            {
+              title: "Success",
+              description: message,
+            },
+            {
+              type: "success",
+              position: "top-center",
+            }
+          );
           currentQueueNumber.value = null;
         })
         .catch((err) => {
-          context.emit("error", err);
+          createToast(
+            {
+              title: "Error",
+              description: err,
+            },
+            {
+              type: "danger",
+              position: "top-center",
+            }
+          );
         });
     };
 
