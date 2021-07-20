@@ -58,7 +58,7 @@
           <MDBBtn color="primary" class="h-100" @click="advanceNum">
             Move to Next Step
           </MDBBtn>
-          <MDBBtn color="danger" class="h-100">
+          <MDBBtn color="danger" class="h-100" @click="rejectNum">
             Reject Patient
           </MDBBtn>
         </div>
@@ -107,9 +107,11 @@ export default {
   emits: ["error", "success"],
   components: { MDBBtn, MDBCard, MDBCardBody, MDBCardTitle, MDBCardText },
   setup(props) {
-    const { getStationQueueList, advanceQueueNumber } = useMonitoring(
-      props.stationStage
-    );
+    const {
+      getStationQueueList,
+      advanceQueueNumber,
+      rejectQueueNumber,
+    } = useMonitoring(props.stationStage);
 
     const { queueList, waitTime } = getStationQueueList();
     const currentQueueNumber = ref(null);
@@ -189,6 +191,49 @@ export default {
         });
     };
 
+    const rejectNum = () => {
+      if (!currentQueueNumber.value) {
+        createToast(
+          {
+            title: "Error",
+            description: "No number selected.",
+          },
+          {
+            type: "warning",
+            position: "top-center",
+          }
+        );
+        return;
+      }
+
+      rejectQueueNumber(currentQueueNumber.value.id)
+        .then((message) => {
+          createToast(
+            {
+              title: "Success",
+              description: message,
+            },
+            {
+              type: "success",
+              position: "top-center",
+            }
+          );
+          currentQueueNumber.value = null;
+        })
+        .catch((err) => {
+          createToast(
+            {
+              title: "Error",
+              description: err,
+            },
+            {
+              type: "danger",
+              position: "top-center",
+            }
+          );
+        });
+    };
+
     return {
       // stationName,
       // stationStage
@@ -199,6 +244,7 @@ export default {
       selectQueueNumber,
       advanceNum,
       waitTime,
+      rejectNum,
     };
   },
 };

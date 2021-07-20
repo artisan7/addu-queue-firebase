@@ -28,6 +28,7 @@
 </template>
 
 <script>
+import { createToast } from "mosha-vue-toastify";
 import { useAdmin } from "../firebase";
 
 export default {
@@ -40,20 +41,75 @@ export default {
         .then(() => {
           console.log("Success!");
         })
-        .catch((err) => console.log(err));
+        .catch((err) =>
+          createToast(
+            {
+              title: "Error",
+              description: err,
+            },
+            {
+              type: "danger",
+              position: "top-center",
+            }
+          )
+        );
     };
 
     const localResetQueue = () => {
       console.log("Resetting...");
       resetQueue()
         .then((message) => {
-          console.log("Done resetting!", message);
+          createToast(
+            {
+              title: "Success",
+              description: message,
+            },
+            {
+              type: "success",
+              position: "top-center",
+            }
+          );
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          createToast(
+            {
+              title: "Error",
+              description: err.message,
+            },
+            {
+              type: "danger",
+              position: "top-center",
+            }
+          );
+        });
     };
 
     const testQueries = () => {
-      runTestQueries();
+      runTestQueries()
+        .then((message) => {
+          createToast(
+            {
+              title: "Success",
+              description: message,
+            },
+            {
+              type: "success",
+              position: "top-center",
+            }
+          );
+        })
+        .catch((err) => {
+          createToast(
+            {
+              title: "Error",
+              description: err.message,
+            },
+            {
+              type: "danger",
+              position: "top-center",
+            }
+          );
+        });
     };
 
     return { localSeedUsers, localResetQueue, testQueries };
