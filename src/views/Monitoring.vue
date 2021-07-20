@@ -4,8 +4,6 @@
       :stationName="$route.params.station"
       :stationStage="stageId"
       :key="$route.params.station"
-      @error="errorMessage"
-      @success="errorMessage"
     ></station-monitoring>
   </div>
 </template>
@@ -24,11 +22,6 @@ export default {
         exit: 10,
       };
       return names[this.$route.params.station];
-    },
-  },
-  methods: {
-    errorMessage(message) {
-      this.$emit("error", message);
     },
   },
 };

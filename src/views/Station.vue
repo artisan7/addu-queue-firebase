@@ -7,7 +7,6 @@
       <station-control
         :stationName="$route.params.station"
         :stageId="stageId"
-        @error="errorMessage"
       ></station-control>
     </div>
     <div v-else>
@@ -35,11 +34,6 @@ export default {
       vaccination: 6,
     },
   }),
-  methods: {
-    errorMessage(message) {
-      this.$emit("error", message);
-    },
-  },
 };
 </script>
 
