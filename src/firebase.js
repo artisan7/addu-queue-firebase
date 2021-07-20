@@ -575,27 +575,36 @@ export function useAdmin() {
   };
 
   const runTestQueries = () => {
-    queueNumCollection
-      .orderBy("queueTime", "asc")
-      .get()
-      .then((snapshot) => {
-        console.log("Issue Num OK!", snapshot);
-      });
-    stationDetailsRef
-      .where("stationType", "==", "registration")
-      .orderBy("stationNum", "asc")
-      .get()
-      .then((snapshot) => {
-        console.log("Display OK!", snapshot);
-      });
-    queueNumAscending
-      .where("stage", "==", 0)
-      .where("rejected", "==", null)
-      .limit(1)
-      .get()
-      .then((snapshot) => {
-        console.log("Station Control OK!", snapshot);
-      });
+    return new Promise((resolve, reject) => {
+      queueNumCollection
+        .orderBy("queueTime", "asc")
+        .get()
+        .then((snapshot) => {
+          console.log("Issue Num OK!", snapshot);
+        })
+        .then(() => {
+          stationDetailsRef
+            .where("stationType", "==", "registration")
+            .orderBy("stationNum", "asc")
+            .get()
+            .then((snapshot) => {
+              console.log("Display OK!", snapshot);
+            })
+            .then(() => {
+              queueNumAscending
+                .where("stage", "==", 0)
+                .limit(1)
+                .get()
+                .then((snapshot) => {
+                  console.log("Station Control OK!", snapshot);
+                  resolve("All systems are go!");
+                })
+                .catch((err) => reject(err));
+            })
+            .catch((err) => reject(err));
+        })
+        .catch((err) => reject(err));
+    });
   };
 
   return {

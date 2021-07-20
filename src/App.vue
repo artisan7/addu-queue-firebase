@@ -56,7 +56,7 @@
       </MDBNavbarNav>
     </MDBCollapse>
   </MDBNavbar>
-  <router-view v-bind="$attrs" @error="errorMessage" />
+  <router-view v-bind="$attrs" />
 </template>
 
 <script>
