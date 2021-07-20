@@ -31,13 +31,15 @@
               >Monitoring</MDBDropdownToggle
             >
             <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
-              <MDBDropdownItem
-                v-for="(station, key) in stations"
-                :key="station"
-                :href="`/display/${station}`"
-              >
-                {{ key }}
-              </MDBDropdownItem>
+              <li v-for="(station, key) in stations" :key="station" href="#">
+                <!-- {{ key }} -->
+
+                <router-link
+                  :to="`/monitoring/${station}`"
+                  class="dropdown-item"
+                  >{{ key }}</router-link
+                >
+              </li>
             </MDBDropdownMenu>
           </MDBDropdown>
         </MDBNavbarItem>
@@ -75,7 +77,6 @@ import {
   MDBNavbarItem,
   MDBCollapse,
   MDBDropdownMenu,
-  MDBDropdownItem,
   MDBDropdownToggle,
   MDBDropdown,
 } from "mdb-vue-ui-kit";
@@ -85,10 +86,12 @@ import { useAuth } from "./firebase";
 export default {
   data: () => ({
     stations: {
-      Registration: "registration",
+      // Registration: "registration",
       Screening: "screening",
       Vitals: "vitals",
       Vaccination: "vaccination",
+      "Post Vaccination": "post",
+      Exit: "exit",
     },
   }),
   components: {
@@ -99,7 +102,6 @@ export default {
     MDBNavbarItem,
     MDBCollapse,
     MDBDropdownMenu,
-    MDBDropdownItem,
     MDBDropdownToggle,
     MDBDropdown,
   },
