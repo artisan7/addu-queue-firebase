@@ -4,45 +4,52 @@
       <div class="col">
         <div class="row">
           <!-- Number Being Served -->
-          <div class="card">
-            <div class="card-body text-center">
-              <h4 class="card-title">Number Being Served</h4>
-              <p class="card-text display-2">
+          <MDBCard>
+            <MDBCardBody class="text-center">
+              <MDBCardTitle>Number Being Served</MDBCardTitle>
+              <MDBCardText class="card-text display-2">
                 8
-              </p>
-            </div>
-          </div>
+              </MDBCardText>
+            </MDBCardBody>
+          </MDBCard>
         </div>
         <div class="row">
           <!-- Number of People In Vitals -->
-          <div class="card">
-            <div class="card-body text-center">
-              <h4 class="card-title">Number of People Waiting in Vitals</h4>
-              <p class="card-text display-2">10</p>
-            </div>
-          </div>
+          <MDBCard>
+            <MDBCardBody class="text-center">
+              <MDBCardTitle
+                >Number of People Waiting in {{ stationName }}</MDBCardTitle
+              >
+              <MDBCardText class="card-text display-2">
+                <span v-if="queueList">
+                  {{ queueList.length }}
+                </span>
+                <span v-else>0</span>
+              </MDBCardText>
+            </MDBCardBody>
+          </MDBCard>
         </div>
       </div>
       <div class="col">
         <div class="row">
           <!-- Number Being Served -->
-          <div class="card">
-            <div class="card-body text-center">
-              <h4 class="card-title">Number Being Served</h4>
-              <p class="card-text display-2">
+          <MDBCard>
+            <MDBCardBody class="text-center">
+              <MDBCardTitle>Number Being Served</MDBCardTitle>
+              <MDBCardText class="card-text display-2">
                 8
-              </p>
-            </div>
-          </div>
+              </MDBCardText>
+            </MDBCardBody>
+          </MDBCard>
         </div>
         <div class="row">
           <!-- Average Waiting Time -->
-          <div class="card">
-            <div class="card-body text-center">
-              <h4 class="card-title">Average Waiting Time</h4>
-              <p class="card-text display-2">10</p>
-            </div>
-          </div>
+          <MDBCard>
+            <MDBCardBody class="text-center">
+              <MDBCardTitle>Average Waiting Time</MDBCardTitle>
+              <MDBCardText class="card-text display-2">10</MDBCardText>
+            </MDBCardBody>
+          </MDBCard>
         </div>
       </div>
     </div>
@@ -58,7 +65,12 @@
         <div class="card my-2 h-100">
           <div class="card-body text-center">
             <h4 class="card-title">Number Selected</h4>
-            <p class="card-text display-2">None</p>
+            <p class="card-text display-2">
+              <span v-if="currentQueueNumber">
+                {{ currentQueueNumber.num }}
+              </span>
+              <span v-else>None</span>
+            </p>
           </div>
         </div>
       </div>
@@ -74,11 +86,7 @@
       </div>
     </div>
     <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 mt-4">
-      <div
-        class="col"
-        v-for="(cards, ind) in [1, 2, 3, 4, 5, 6, 7, 8, 9]"
-        :key="ind"
-      >
+      <div class="col" v-for="(queueItem, ind) in queueList" :key="ind">
         <MDBCard
           :bg="ind % 2 ? 'primary' : 'warning'"
           :text="ind % 2 ? 'white' : 'black'"
@@ -90,9 +98,10 @@
               'text-white': ind % 2,
               'text-black': !(ind % 2),
             }"
+            @click.prevent="selectQueueNumber(ind)"
           >
             <MDBCardBody>
-              <MDBCardTitle>{{ cards }}</MDBCardTitle>
+              <MDBCardTitle>{{ queueItem.num }}</MDBCardTitle>
               <MDBCardText>Queue Num</MDBCardText>
             </MDBCardBody>
           </a>
@@ -103,7 +112,8 @@
 </template>
 
 <script>
-import { computed } from "@vue/runtime-core";
+import { computed, ref } from "@vue/runtime-core";
+import { useMonitoring } from "../firebase";
 import {
   MDBBtn,
   MDBCard,
@@ -113,9 +123,14 @@ import {
 } from "mdb-vue-ui-kit";
 
 export default {
-  props: ["stationName", "stationStage"],
+  props: ["stationStage"],
   components: { MDBBtn, MDBCard, MDBCardBody, MDBCardTitle, MDBCardText },
   setup(props) {
+    const { getStationQueueList } = useMonitoring(props.stationStage);
+
+    const queueList = getStationQueueList();
+    const currentQueueNumber = ref(null);
+
     const monitoringTitle = computed(() => {
       const names = {
         screening: "Registration to Screening",
@@ -127,12 +142,31 @@ export default {
       return names[props.stationName];
     });
 
-    // const { stationName, stationStage } = props;
+    const stationName = computed(() => {
+      const names = {
+        screening: "Registration",
+        monitoring: "Screening",
+        vaccination: "Monitoring",
+        post: "Vaccination",
+        exit: "Post-Vaccination",
+      };
+      return names[props.stationName];
+    });
+
+    const selectQueueNumber = (ind) => {
+      // console.log("SELECTING", ind);
+      currentQueueNumber.value = queueList.value[ind];
+      // console.log("NUM:", currentQueueNumber.value);
+    };
 
     return {
       // stationName,
       // stationStage
+      stationName,
       monitoringTitle,
+      queueList,
+      currentQueueNumber,
+      selectQueueNumber,
     };
   },
 };
