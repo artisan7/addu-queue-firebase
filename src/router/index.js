@@ -9,6 +9,7 @@ import Display from "../views/Display.vue";
 import SignIn from "../views/SignIn.vue";
 import SignOut from "../views/SignOut.vue";
 import Admin from "../views/Admin.vue";
+import Monitoring from "../views/Monitoring.vue";
 
 const { isLogin, user, permissions } = useAuthServer();
 
@@ -42,6 +43,15 @@ const routes = [
     path: "/station/:station",
     name: "Station Control",
     component: Station,
+    meta: {
+      authRequired: true,
+      stationRequired: true,
+    },
+  },
+  {
+    path: "/monitoring/:station",
+    name: "Monitoring",
+    component: Monitoring,
     meta: {
       authRequired: true,
       stationRequired: true,

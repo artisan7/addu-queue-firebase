@@ -1,6 +1,9 @@
 <template>
   <div>
-    <station-monitoring></station-monitoring>
+    <station-monitoring
+      :stationName="$route.params.station"
+      :stationStage="stageId"
+    ></station-monitoring>
   </div>
 </template>
 
@@ -17,6 +20,7 @@ export default {
         post: 8,
         exit: 10,
       };
+      return names[this.$route.params.station];
     },
   },
 };
