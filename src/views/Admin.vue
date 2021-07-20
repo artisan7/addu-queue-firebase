@@ -6,7 +6,9 @@
           Reset Queue
         </button>
         <button class="btn" @click="localSeedUsers">Seed Users</button>
-        <button class="btn"></button>
+        <button class="btn btn-primary" @click="testQueries">
+          Run Test Queries
+        </button>
       </div>
     </div>
     <div class="row">
@@ -30,7 +32,7 @@ import { useAdmin } from "../firebase";
 
 export default {
   setup() {
-    const { seedUsers, resetQueue } = useAdmin();
+    const { seedUsers, resetQueue, runTestQueries } = useAdmin();
 
     const localSeedUsers = () => {
       console.log("Seeding...");
@@ -50,7 +52,11 @@ export default {
         .catch((err) => console.error(err));
     };
 
-    return { localSeedUsers, localResetQueue };
+    const testQueries = () => {
+      runTestQueries();
+    };
+
+    return { localSeedUsers, localResetQueue, testQueries };
   },
 };
 </script>

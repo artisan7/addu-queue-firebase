@@ -14,7 +14,7 @@ export default {
     const { signOut, isLogin } = useAuth();
     if (isLogin) signOut();
 
-    this.$router.push("/");
+    this.$router.push("/signin");
   },
 };
 </script>
