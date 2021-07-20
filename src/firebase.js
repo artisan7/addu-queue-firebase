@@ -10,6 +10,8 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const firestore = firebase.firestore();
 
+const stations = ["registration", "screening", "vitals", "vaccination", "post"];
+
 /** Contains the user ids of the auth users and their permissions
  *
  * Warning: No security whatsoever.
@@ -166,9 +168,10 @@ export function useQueue() {
   // Function Definition for Station Control
   const callForNextNum = async (stage) => {
     try {
-      const station = ["registration", "screening", "vitals", "vaccination"][
-        stage / 2
-      ];
+      const station = stations[stage / 2];
+
+      // Authenticate the user
+      if (!auth.currentUser) throw "You are not authenticated.";
 
       // Check to see if user is authenticated
       // if (
@@ -386,29 +389,41 @@ export function useQueue() {
 
 /** Hook for monitoring pages */
 export function useMonitoring(stage) {
-  const station = [
-    "registration",
-    "screening",
-    "vitals",
-    "vaccination",
-    "post",
-    "exit",
-  ][stage / 2];
+  const station = stations[stage / 2];
+  const prevStation = stations[stage / 2 - 1];
 
-  /** Get a list of queue numbers in the current station */
+  /** Get a list of queue numbers in the current station
+   *  and the stations above it. This is so we can calculate
+   *  wait times at the same time to save on reads
+   */
   const getStationQueueList = () => {
     const queueList = ref(null);
+    const waitTime = ref(null);
 
-    queueNumAscending.where("stage", "==", stage).onSnapshot((snapshot) => {
-      queueList.value = snapshot.docs.map((doc) => {
+    queueNumCollection.where("stage", ">=", stage).onSnapshot((snapshot) => {
+      const numCollection = snapshot.docs.map((doc) => {
         return {
           id: doc.id,
           ...doc.data(),
         };
       });
+      queueList.value = numCollection.filter(
+        (queueItem) => queueItem.stage == stage
+      );
+      waitTime.value =
+        numCollection
+          .filter((queueItem) => queueItem.stage > stage)
+          .map((queueItem) => {
+            const currentStationTimestamp = queueItem.timestamps[station];
+            const prevStationTimestamp = queueItem.timestamps[prevStation];
+            return (
+              currentStationTimestamp.seconds - prevStationTimestamp.seconds
+            );
+          })
+          .reduce((a, b) => a + b, 0) / numCollection.length;
     });
 
-    return queueList;
+    return { queueList, waitTime };
   };
 
   const advanceQueueNumber = (id) => {
@@ -426,7 +441,7 @@ export function useMonitoring(stage) {
 
           docRef.ref
             .update({
-              stage: increment,
+              stage: firebase.firestore.FieldValue.increment(2), // Increments by 2 to follow the stage flow
               timestamps: newTimestamp,
             })
             .then(() => {
@@ -468,8 +483,6 @@ export function useMonitoring(stage) {
 
 /** Hooks for the Admin page. Requires the admin user */
 export function useAdmin() {
-  const stations = ["registration", "screening", "vitals", "vaccination"];
-
   /**
    * Seed the entire firestore database
    *
