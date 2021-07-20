@@ -3,7 +3,9 @@
     <station-monitoring
       :stationName="$route.params.station"
       :stationStage="stageId"
+      :key="$route.params.station"
       @error="errorMessage"
+      @success="errorMessage"
     ></station-monitoring>
   </div>
 </template>
@@ -16,7 +18,7 @@ export default {
     stageId() {
       const names = {
         screening: 2,
-        monitoring: 4,
+        vitals: 4,
         vaccination: 6,
         post: 8,
         exit: 10,
