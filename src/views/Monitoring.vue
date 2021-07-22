@@ -21,7 +21,6 @@ export default {
         vitals: 4,
         vaccination: 6,
         post: 8,
-        exit: 10,
       };
       return names[this.$route.params.station];
     },

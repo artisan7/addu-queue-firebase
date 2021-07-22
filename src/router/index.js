@@ -119,8 +119,8 @@ router.beforeEach((to, from, next) => {
           }
         } else if (to.meta.stationRequired) {
           if (
-            userPermissions[to.params.station].includes(user.value.uid) ||
-            adminUids.includes(user.value.uid)
+            adminUids.includes(user.value.uid) ||
+            userPermissions[to.params.station].includes(user.value.uid)
           )
             next();
           else {

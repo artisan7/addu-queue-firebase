@@ -148,8 +148,7 @@ export function useQueue() {
             screening: null,
             vitals: null,
             vaccination: null,
-            observation: null,
-            exit: null,
+            post: null,
           },
           // issueTime: firebase.firestore.FieldValue.serverTimestamp(),
           // registrationTime: null,
@@ -422,6 +421,8 @@ export function useMonitoring(stage) {
             .map((queueItem) => {
               let currentStationTimestamp;
               let prevStationTimestamp;
+
+              console.log(station);
 
               if (stage != 1) {
                 currentStationTimestamp = queueItem.timestamps[station];

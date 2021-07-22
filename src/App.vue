@@ -66,10 +66,6 @@
             </MDBDropdownMenu>
           </MDBDropdown>
         </MDBNavbarItem>
-
-        <MDBNavbarItem to="#">
-          <router-link to="/admin" class="nav-link">Admin</router-link>
-        </MDBNavbarItem>
         <MDBNavbarItem v-if="!isLogin" to="#">
           <router-link :to="`/signin`" class="nav-link">Sign In</router-link>
         </MDBNavbarItem>
@@ -105,7 +101,6 @@ export default {
       Vitals: "vitals",
       Vaccination: "vaccination",
       "Post Vaccination": "post",
-      Exit: "exit",
     },
   }),
   components: {
