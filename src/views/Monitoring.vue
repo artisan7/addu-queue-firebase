@@ -1,6 +1,7 @@
 <template>
   <div>
     <station-monitoring
+      v-if="stageId"
       :stationName="$route.params.station"
       :stationStage="stageId"
       :key="$route.params.station"
@@ -15,6 +16,7 @@ export default {
   computed: {
     stageId() {
       const names = {
+        registration: 1,
         screening: 2,
         vitals: 4,
         vaccination: 6,
