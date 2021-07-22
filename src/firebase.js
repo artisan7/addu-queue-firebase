@@ -441,6 +441,7 @@ export function useMonitoring(stage) {
     return { queueList, waitTime };
   };
 
+  /** Advance a queue number using the Monitoring UI instead of the station control */
   const advanceQueueNumber = (id) => {
     return new Promise((resolve, reject) => {
       queueNumCollection
@@ -454,9 +455,13 @@ export function useMonitoring(stage) {
             station
           ] = firebase.firestore.FieldValue.serverTimestamp();
 
+          // Special case for increment in registration
+          let stageIncrement = 2;
+          if (stage == 1) stageIncrement = 1;
+
           docRef.ref
             .update({
-              stage: firebase.firestore.FieldValue.increment(2), // Increments by 2 to follow the stage flow
+              stage: firebase.firestore.FieldValue.increment(stageIncrement), // Increments by 2 (usually) to follow the stage flow
               timestamps: newTimestamp,
             })
             .then(() => {
@@ -468,6 +473,7 @@ export function useMonitoring(stage) {
     });
   };
 
+  /** Reject a queue number with the Monitoring UI */
   const rejectQueueNumber = (id) => {
     return new Promise((resolve, reject) => {
       queueNumCollection
