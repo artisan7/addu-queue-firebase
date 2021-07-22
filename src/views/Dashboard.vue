@@ -90,21 +90,25 @@ export default {
     const queueNumList = getQueueNums();
 
     const peopleInQueue = computed(() => {
-      return queueNumList.value.filter(
-        (queueNum) => queueNum.timestamps.exit === null
-      );
+      return queueNumList.value.filter((queueNum) => queueNum.stage < 10);
     });
 
     const averageTimePerPerson = computed(() => {
       // Filter out the people still in queue
       const finished = queueNumList.value.filter(
-        (queueNum) => queueNum.timestamps.exit !== null
+        (queueNum) => queueNum.stage === 10
       );
+
+      if (finished.length === 0) return "Waiting...";
+
+      console.log(finished.length, finished, queueNumList.value);
+
       const seconds =
         finished
           .map((queueNum) => {
             const enterTime = queueNum.timestamps.issue;
-            const exitTime = queueNum.timestamps.exit;
+            const exitTime = queueNum.timestamps.post;
+            console.log(queueNum, "Enter: ", enterTime, "Exit:", exitTime);
             // Calculate the time in seconds
             return exitTime.seconds - enterTime.seconds;
           })
