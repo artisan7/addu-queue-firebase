@@ -10,6 +10,7 @@ import SignIn from "../views/SignIn.vue";
 import SignOut from "../views/SignOut.vue";
 import Admin from "../views/Admin.vue";
 import Monitoring from "../views/Monitoring.vue";
+import Dashboard from "../views/Dashboard.vue";
 
 const { isLogin, user, permissions } = useAuthServer();
 
@@ -81,6 +82,16 @@ const routes = [
     component: Admin,
     meta: {
       authRequired: true,
+      adminRequired: true,
+    },
+  },
+  {
+    path: "/dashboard",
+    name: "Dashboard",
+    component: Dashboard,
+    meta: {
+      authRequired: true,
+      adminRequired: true,
     },
   },
 ];
@@ -96,12 +107,9 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   permissions().then((userPermissions) => {
-    // console.log("User Permissions:", userPermissions);
-    // console.log(adminUids);
-    // // console.log(user.value.uid);
     if (to.meta.authRequired) {
       if (isLogin.value)
-        if (to.path === "/admin") {
+        if (to.meta.adminRequired) {
           if (adminUids.includes(user.value.uid)) next();
           else {
             alert("You do not have the authorization to use this page!");

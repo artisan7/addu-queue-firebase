@@ -23,11 +23,11 @@
           >
         </MDBNavbarItem>
         <MDBNavbarItem>
-          <MDBDropdown class="nav-item" v-model="displayDropdown">
+          <MDBDropdown class="nav-item" v-model="adminDropdown">
             <MDBDropdownToggle
               tag="a"
               class="nav-link mt-2"
-              @click="displayDropdown = !displayDropdown"
+              @click="adminDropdown = !adminDropdown"
               >Monitoring</MDBDropdownToggle
             >
             <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
@@ -38,6 +38,29 @@
                   :to="`/monitoring/${station}`"
                   class="dropdown-item"
                   >{{ key }}</router-link
+                >
+              </li>
+            </MDBDropdownMenu>
+          </MDBDropdown>
+        </MDBNavbarItem>
+
+        <MDBNavbarItem>
+          <MDBDropdown class="nav-item" v-model="displayDropdown">
+            <MDBDropdownToggle
+              tag="a"
+              class="nav-link mt-2"
+              @click="displayDropdown = !displayDropdown"
+              >Admin</MDBDropdownToggle
+            >
+            <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
+              <li href="#">
+                <router-link to="/admin" class="dropdown-item"
+                  >Admin Controls</router-link
+                >
+              </li>
+              <li href="#">
+                <router-link to="/dashboard" class="dropdown-item"
+                  >Admin Dashboard</router-link
                 >
               </li>
             </MDBDropdownMenu>
@@ -77,7 +100,7 @@ import { useAuth } from "./firebase";
 export default {
   data: () => ({
     stations: {
-      // Registration: "registration",
+      Registration: "registration",
       Screening: "screening",
       Vitals: "vitals",
       Vaccination: "vaccination",
@@ -100,12 +123,12 @@ export default {
     const { isLogin } = useAuth();
 
     const collapse1 = ref(false);
-    const stationDropdown = ref(false);
+    const adminDropdown = ref(false);
     const displayDropdown = ref(false);
 
     return {
       collapse1,
-      stationDropdown,
+      adminDropdown,
       displayDropdown,
       isLogin,
     };

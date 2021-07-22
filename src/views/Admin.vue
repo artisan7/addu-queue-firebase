@@ -30,10 +30,12 @@
 <script>
 import { createToast } from "mosha-vue-toastify";
 import { useAdmin } from "../firebase";
+import { watch } from "@vue/runtime-core";
 
 export default {
   setup() {
     const { seedUsers, resetQueue, runTestQueries } = useAdmin();
+    const { testQuery, queryStatus } = runTestQueries();
 
     const localSeedUsers = () => {
       console.log("Seeding...");
@@ -84,8 +86,24 @@ export default {
         });
     };
 
+    watch(
+      () => queryStatus.value,
+      (newVal) => {
+        createToast(
+          {
+            title: "Success",
+            description: newVal,
+          },
+          {
+            type: "warning",
+            position: "top-right",
+          }
+        );
+      }
+    );
+
     const testQueries = () => {
-      runTestQueries()
+      testQuery()
         .then((message) => {
           createToast(
             {
@@ -112,7 +130,7 @@ export default {
         });
     };
 
-    return { localSeedUsers, localResetQueue, testQueries };
+    return { localSeedUsers, localResetQueue, testQueries, queryStatus };
   },
 };
 </script>

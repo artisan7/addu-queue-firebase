@@ -94,7 +94,7 @@ const queueCounterRef = firestore.collection("counter").doc("queueNum");
 /*** Reference to Station Details Collection in Firestore */
 const stationDetailsRef = firestore.collection("stationDetails");
 
-const increment = firebase.firestore.FieldValue.increment(1);
+// const increment = firebase.firestore.FieldValue.increment(1);
 const decrement = firebase.firestore.FieldValue.increment(-1);
 
 export function useQueue() {
@@ -245,7 +245,7 @@ export function useQueue() {
 
       // Update the queue item
       await queueNumCollection.doc(queueId).update({
-        stage: increment,
+        // stage: increment, // Comment this out if you're going to use monitoring
         [`timestamps.${station}`]: firebase.firestore.FieldValue.serverTimestamp(),
       });
 
@@ -389,7 +389,9 @@ export function useQueue() {
 
 /** Hook for monitoring pages */
 export function useMonitoring(stage) {
-  const station = stations[stage / 2];
+  let station;
+  if (stage != 1) station = stations[stage / 2];
+  else station = stations[0];
   const prevStation = stations[stage / 2 - 1];
 
   /** Get a list of queue numbers in the current station
@@ -400,28 +402,41 @@ export function useMonitoring(stage) {
     const queueList = ref(null);
     const waitTime = ref(null);
 
-    queueNumCollection.where("stage", ">=", stage).onSnapshot((snapshot) => {
-      const numCollection = snapshot.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
+    queueNumCollection
+      .where("stage", ">=", stage)
+      .orderBy("stage", "asc")
+      .orderBy("num", "asc")
+      .onSnapshot((snapshot) => {
+        const numCollection = snapshot.docs.map((doc) => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          };
+        });
+        queueList.value = numCollection.filter(
+          (queueItem) => queueItem.stage == stage
+        );
+        waitTime.value =
+          numCollection
+            .filter((queueItem) => queueItem.stage > stage)
+            .map((queueItem) => {
+              let currentStationTimestamp;
+              let prevStationTimestamp;
+
+              if (stage != 1) {
+                currentStationTimestamp = queueItem.timestamps[station];
+                prevStationTimestamp = queueItem.timestamps[prevStation];
+              } else {
+                currentStationTimestamp = queueItem.timestamps["registration"];
+                prevStationTimestamp = queueItem.timestamps["issue"];
+              }
+
+              return (
+                currentStationTimestamp.seconds - prevStationTimestamp.seconds
+              );
+            })
+            .reduce((a, b) => a + b, 0) / numCollection.length;
       });
-      queueList.value = numCollection.filter(
-        (queueItem) => queueItem.stage == stage
-      );
-      waitTime.value =
-        numCollection
-          .filter((queueItem) => queueItem.stage > stage)
-          .map((queueItem) => {
-            const currentStationTimestamp = queueItem.timestamps[station];
-            const prevStationTimestamp = queueItem.timestamps[prevStation];
-            return (
-              currentStationTimestamp.seconds - prevStationTimestamp.seconds
-            );
-          })
-          .reduce((a, b) => a + b, 0) / numCollection.length;
-    });
 
     return { queueList, waitTime };
   };
@@ -575,41 +590,61 @@ export function useAdmin() {
   };
 
   const runTestQueries = () => {
-    return new Promise((resolve, reject) => {
-      queueNumCollection
-        .orderBy("queueTime", "asc")
-        .get()
-        .then((snapshot) => {
-          console.log("Issue Num OK!", snapshot);
-        })
-        .then(() => {
-          stationDetailsRef
-            .where("stationType", "==", "registration")
-            .orderBy("stationNum", "asc")
-            .get()
-            .then((snapshot) => {
-              console.log("Display OK!", snapshot);
-            })
-            .then(() => {
-              queueNumAscending
-                .where("stage", "==", 0)
-                .limit(1)
-                .get()
-                .then((snapshot) => {
-                  console.log("Station Control OK!", snapshot);
-                  resolve("All systems are go!");
-                })
-                .catch((err) => reject(err));
-            })
-            .catch((err) => reject(err));
-        })
-        .catch((err) => reject(err));
+    const queryStatus = ref(null);
+    const testQuery = () => {
+      return new Promise((resolve, reject) => {
+        queueNumCollection
+          .orderBy("queueTime", "asc")
+          .get()
+          .then(() => {
+            queryStatus.value = "Station Controls OK!";
+            // console.log("Issue Num OK!", snapshot);
+          })
+          .then(() => {
+            stationDetailsRef
+              .where("stationType", "==", "registration")
+              .orderBy("stationNum", "asc")
+              .get()
+              .then(() => {
+                queryStatus.value = "Station Display OK!";
+                // console.log("Display OK!", snapshot);
+              })
+              .then(() => {
+                queueNumCollection
+                  .where("stage", ">=", 2)
+                  .orderBy("stage", "asc")
+                  .orderBy("num", "asc")
+                  .get()
+                  .then(() => {
+                    queryStatus.value = "Monitoring OK!";
+                    // console.log("Station Control OK!", snapshot);
+                    resolve("All systems are go!");
+                  })
+                  .catch((err) => reject(err));
+              })
+              .catch((err) => reject(err));
+          })
+          .catch((err) => reject(err));
+      });
+    };
+    return {
+      queryStatus,
+      testQuery,
+    };
+  };
+
+  const getAllQueueNums = () => {
+    const queueNums = ref(null);
+    queueNumCollection.onSnapshot((snapshot) => {
+      queueNums.value = snapshot.docs.map((doc) => doc.data());
     });
+    return queueNums;
   };
 
   return {
     seedUsers,
     resetQueue,
     runTestQueries,
+    getAllQueueNums,
   };
 }
