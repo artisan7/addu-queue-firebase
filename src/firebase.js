@@ -639,8 +639,8 @@ export function useAdmin() {
     };
   };
 
-  const getAllQueueNums = () => {
-    const queueNums = ref(null);
+  const getQueueNums = () => {
+    const queueNums = ref([]);
     queueNumCollection.onSnapshot((snapshot) => {
       queueNums.value = snapshot.docs.map((doc) => doc.data());
     });
@@ -651,6 +651,6 @@ export function useAdmin() {
     seedUsers,
     resetQueue,
     runTestQueries,
-    getAllQueueNums,
+    getQueueNums,
   };
 }
