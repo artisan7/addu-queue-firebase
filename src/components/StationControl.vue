@@ -58,7 +58,7 @@
         <MDBBtn
           color="danger"
           :disabled="processing"
-          @click="unqueueNumLocal"
+          @click="rejectNumLocal"
           size="sm"
           >Reject</MDBBtn
         >
@@ -101,6 +101,7 @@ export default {
       finishCurrentNum,
       unqueueNum,
       getQueueNumberByAuth,
+      rejectNum,
     } = useQueue();
     const { user } = useAuth();
 
@@ -174,6 +175,49 @@ export default {
       // console.log(currentlyServing.value);
       unqueueNum(currentlyServing.value.id)
         .then(() => {
+          createToast(
+            {
+              title: "Success",
+              description:
+                "Sent #" +
+                currentlyServing.value.num +
+                " to the back of the queue",
+            },
+            {
+              type: "success",
+              position: "top-center",
+            }
+          );
+          currentlyServing.value = null;
+        })
+        .catch((err) =>
+          createToast(
+            {
+              title: "Error",
+              description: err,
+            },
+            {
+              type: "danger",
+              position: "top-center",
+            }
+          )
+        );
+    }
+
+    function rejectNumLocal() {
+      // console.log(currentlyServing.value);
+      rejectNum(currentlyServing.value.id)
+        .then(() => {
+          createToast(
+            {
+              title: "Success",
+              description: "Rejected #" + currentlyServing.value.num,
+            },
+            {
+              type: "success",
+              position: "top-center",
+            }
+          );
           currentlyServing.value = null;
         })
         .catch((err) =>
@@ -223,6 +267,7 @@ export default {
       processing,
       finishAndCallNext,
       unqueueNumLocal,
+      rejectNumLocal,
       getQueueNumberByAuth,
     };
   },
