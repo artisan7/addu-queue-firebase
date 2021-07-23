@@ -510,41 +510,99 @@ export function useAdmin() {
    *
    * Creates the queue counter, the station accounts, and the station details
    */
-  const seedUsers = async () => {
-    try {
-      const batch = firestore.batch();
+  const seedUsers = () => {
+    const seedStatus = ref(null);
+    const seedUserFn = async () => {
+      try {
+        const batch = firestore.batch();
 
-      batch.set(queueCounterRef, {
-        counter: 0,
-      });
+        batch.set(queueCounterRef, {
+          counter: 0,
+        });
 
-      for (const station of stations) {
+        seedStatus.value = {
+          status: "success",
+          message: "Counter created.",
+        };
+
         let uids = [];
-        for (let x = 1; x <= 10; x++) {
-          console.log(`Creating user ${x} of station ${station}`);
-          const userCred = await auth.createUserWithEmailAndPassword(
-            `station-${x}@${station}.station`,
-            `${station}!stn${x}`
-          );
+
+        for (let x = 1; x <= 3; x++) {
+          const email = `station-${x}@issue.station`;
+          const password = `issue!stn${x}`;
+          let userCred;
+          try {
+            userCred = await auth.createUserWithEmailAndPassword(
+              email,
+              password
+            );
+            seedStatus.value = {
+              status: "success",
+              message: `Created user account for issue #${x}`,
+            };
+          } catch (err) {
+            userCred = await auth.signInWithEmailAndPassword(email, password);
+            seedStatus.value = {
+              status: "success",
+              message: `Found user account for issue #${x}`,
+            };
+          }
           uids.push(userCred.user.uid);
-          batch.set(
-            firestore.collection("stationDetails").doc(userCred.user.uid),
-            {
-              currentQueueId: null,
-              stationNum: x,
-              stationType: station,
-            }
-          );
         }
-        batch.set(firestore.collection("permissions").doc(station), {
+
+        batch.set(firestore.collection("permissions").doc("issue"), {
           ids: uids,
         });
+
+        for (const station of stations) {
+          uids = [];
+          for (let x = 1; x <= 10; x++) {
+            const email = `station-${x}@${station}.station`;
+            const password = `${station}!stn${x}`;
+            console.log(`Creating user ${x} of station ${station}`);
+            let userCred;
+            try {
+              userCred = await auth.createUserWithEmailAndPassword(
+                email,
+                password
+              );
+              seedStatus.value = {
+                status: "success",
+                message: `Created user account for ${station} station ${x}`,
+              };
+            } catch (err) {
+              userCred = await auth.signInWithEmailAndPassword(email, password);
+              seedStatus.value = {
+                status: "success",
+                message: `Found user account for ${station} station ${x}`,
+              };
+            }
+
+            uids.push(userCred.user.uid);
+            batch.set(
+              firestore.collection("stationDetails").doc(userCred.user.uid),
+              {
+                currentQueueId: null,
+                stationNum: x,
+                stationType: station,
+              }
+            );
+          }
+          batch.set(firestore.collection("permissions").doc(station), {
+            ids: uids,
+          });
+        }
+        await batch.commit();
+        return Promise.resolve("Done seeding!");
+      } catch (err) {
+        return Promise.reject(err);
       }
-      await batch.commit();
-      return Promise.resolve("Done seeding!");
-    } catch (err) {
-      return Promise.reject(err);
-    }
+    };
+
+    return {
+      seedStatus,
+      seedUserFn,
+    };
   };
 
   /**
@@ -604,7 +662,10 @@ export function useAdmin() {
           .orderBy("queueTime", "asc")
           .get()
           .then(() => {
-            queryStatus.value = "Station Controls OK!";
+            queryStatus.value = {
+              type: "success",
+              message: "Station Controls OK!",
+            };
             // console.log("Issue Num OK!", snapshot);
           })
           .then(() => {
@@ -613,7 +674,10 @@ export function useAdmin() {
               .orderBy("stationNum", "asc")
               .get()
               .then(() => {
-                queryStatus.value = "Station Display OK!";
+                queryStatus.value = {
+                  type: "success",
+                  message: "Station Display OK!",
+                };
                 // console.log("Display OK!", snapshot);
               })
               .then(() => {
@@ -623,8 +687,10 @@ export function useAdmin() {
                   .orderBy("num", "asc")
                   .get()
                   .then(() => {
-                    queryStatus.value = "Monitoring OK!";
-                    // console.log("Station Control OK!", snapshot);
+                    queryStatus.value = {
+                      type: "success",
+                      message: "Monitoring OK!",
+                    };
                     resolve("All systems are go!");
                   })
                   .catch((err) => reject(err));
