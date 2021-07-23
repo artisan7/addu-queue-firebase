@@ -38,6 +38,7 @@ const routes = [
     component: Issue,
     meta: {
       authRequired: true,
+      issueRequired: true,
     },
   },
   {
@@ -121,6 +122,18 @@ router.beforeEach((to, from, next) => {
           if (
             adminUids.includes(user.value.uid) ||
             userPermissions[to.params.station].includes(user.value.uid)
+          )
+            next();
+          else {
+            alert("You do not have the authorization to use this page!");
+            next({
+              name: "Home",
+            });
+          }
+        } else if (to.meta.issueRequired) {
+          if (
+            adminUids.includes(user.value.uid) ||
+            userPermissions.issue.includes(user.value.uid)
           )
             next();
           else {
