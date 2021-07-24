@@ -2,7 +2,7 @@
   <div class="dashboard-layout container">
     <MDBCard
       style="grid-area: numVax"
-      bg="success"
+      bg="primary"
       text="white"
       class="text-center"
     >
@@ -37,12 +37,7 @@
       </MDBCardBody>
     </MDBCard>
 
-    <MDBCard
-      style="grid-area: rejected"
-      bg="danger"
-      text="white"
-      class="text-center"
-    >
+    <MDBCard style="grid-area: rejected" bg="warning" class="text-center">
       <MDBCardBody>
         <MDBCardTitle>Number of People Rejected</MDBCardTitle>
         <MDBCardText class="display-2">{{ numRejected.length }}</MDBCardText>
@@ -58,10 +53,10 @@
         class="text-center"
       >
         <MDBCardBody>
-          <MDBCardTitle
-            >Number of People Served in {{ queue.station }}</MDBCardTitle
+          <MDBCardTitle class="lead"
+            >Number of People in {{ queue.station }}</MDBCardTitle
           >
-          <MDBCardText class="display-2">{{ queue.count }}</MDBCardText>
+          <MDBCardText class="display-3">{{ queue.count }}</MDBCardText>
         </MDBCardBody>
       </MDBCard>
     </div>
@@ -156,23 +151,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.dashboard-layout {
-  display: grid;
-  grid-template-areas:
-    "numVax numVax"
-    "inQueue AvgTime"
-    "latestIssued rejected"
-    "numPerson numPerson";
-  gap: 4px;
-  margin: 1rem;
-}
-
-.num-person-display {
-  grid-area: numPerson;
-  display: grid;
-  gap: 4px;
-  grid-template-columns: 1fr 1fr 1fr;
-}
-</style>

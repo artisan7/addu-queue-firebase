@@ -1,6 +1,60 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
-@import "~bootstrap/scss/bootstrap";
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+@import url("./imports.scss");
+
+.monitoring-layout {
+  display: grid;
+  grid-template-areas:
+    "numWaiting avgTime"
+    "hero hero"
+    "numSel numSel"
+    "controls controls"
+    "nums nums";
+  gap: 0.5rem;
+  margin: auto;
+}
+
+.dashboard-layout {
+  display: grid;
+  grid-template-areas:
+    "numVax numVax"
+    "inQueue AvgTime"
+    "latestIssued rejected"
+    "numPerson numPerson";
+  gap: 4px;
+  margin: auto;
+}
+
+.num-person-display {
+  grid-area: numPerson;
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@include media-breakpoint-up(sm) {
+  .monitoring-layout {
+    display: grid;
+    grid-template-areas:
+      "numWaiting avgTime"
+      "hero hero"
+      "numSel controls"
+      "nums nums";
+    gap: 0.75rem;
+  }
+
+  .num-person-display {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@include media-breakpoint-up(md) {
+  .num-person-display {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
 
 * {
-    font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 }

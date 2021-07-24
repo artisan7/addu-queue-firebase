@@ -1,70 +1,66 @@
 <template>
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <!-- Number of People In Vitals -->
-        <MDBCard>
-          <MDBCardBody class="text-center">
-            <MDBCardTitle
-              >Number of People Waiting in
-              {{ currentStationName }}</MDBCardTitle
-            >
-            <MDBCardText class="card-text display-2">
-              <span v-if="waitingQueueList">
-                {{ waitingQueueList.length }}
-              </span>
-              <span v-else>0</span>
-            </MDBCardText>
-          </MDBCardBody>
-        </MDBCard>
-      </div>
-      <div class="col">
-        <!-- Average Waiting Time -->
-        <MDBCard>
-          <MDBCardBody class="text-center">
-            <MDBCardTitle>Average Waiting Time</MDBCardTitle>
-            <MDBCardText class="card-text display-2"
-              >{{ Math.round(waitTime / 60) }} min(s)</MDBCardText
-            >
-          </MDBCardBody>
-        </MDBCard>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <div
-          class="bg-primary text-white display-6 text-center m-2 p-2 rounded shadow"
+  <div class="container monitoring-layout">
+    <!-- Number of People In Vitals -->
+    <MDBCard style="grid-area: numWaiting">
+      <MDBCardBody class="text-center">
+        <MDBCardTitle
+          >Number of People Waiting in {{ currentStationName }}</MDBCardTitle
         >
-          {{ monitoringTitle }}
-        </div>
-      </div>
+        <MDBCardText class="card-text display-2">
+          <span v-if="waitingQueueList">
+            {{ waitingQueueList.length }}
+          </span>
+          <span v-else>0</span>
+        </MDBCardText>
+      </MDBCardBody>
+    </MDBCard>
+
+    <!-- Average Waiting Time -->
+    <MDBCard style="grid-area: avgTime">
+      <MDBCardBody class="text-center">
+        <MDBCardTitle>Average Waiting Time</MDBCardTitle>
+        <MDBCardText class="card-text">
+          <h2 class="display-2">{{ averageTimePerPerson }}</h2>
+          <p class="subtitle-1" v-if="averageTimePerPerson != 'Waiting...'">
+            h:m:s
+          </p>
+        </MDBCardText>
+      </MDBCardBody>
+    </MDBCard>
+
+    <div
+      class="bg-primary text-white display-6 text-center p-2 rounded shadow"
+      style="grid-area: hero"
+    >
+      {{ monitoringTitle }}
     </div>
-    <div class="row">
-      <div class="col">
-        <div class="card my-2 h-100">
-          <div class="card-body text-center">
-            <h4 class="card-title">Number Selected</h4>
-            <p class="card-text display-2">
-              <span v-if="currentQueueNumber">
-                {{ currentQueueNumber.num }}
-              </span>
-              <span v-else>None</span>
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col m-0">
-        <div class="d-flex flex-column h-100 m-0 gap-2">
-          <MDBBtn color="primary" class="h-100" @click="advanceNum">
-            Move to Next Step
-          </MDBBtn>
-          <MDBBtn color="danger" class="h-100" @click="rejectNum">
-            Reject Patient
-          </MDBBtn>
-        </div>
-      </div>
+
+    <!-- Average Waiting Time -->
+    <MDBCard style="grid-area: numSel">
+      <MDBCardBody class="text-center">
+        <MDBCardTitle>Number Selected</MDBCardTitle>
+        <MDBCardText class="card-text display-2">
+          <span v-if="currentQueueNumber">
+            {{ currentQueueNumber.num }}
+          </span>
+          <span v-else>None</span>
+        </MDBCardText>
+      </MDBCardBody>
+    </MDBCard>
+
+    <div class="d-flex flex-column h-100 m-0 gap-2" style="grid-area: controls">
+      <MDBBtn color="success" class="h-100" @click="advanceNum">
+        Move to Next Step
+      </MDBBtn>
+      <MDBBtn color="danger" class="h-100" @click="rejectNum">
+        Reject Patient
+      </MDBBtn>
     </div>
-    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 mt-4">
+    <!-- </div> -->
+    <div
+      class="row row-cols-2 row-cols-md-4 row-cols-lg-5 mt-4"
+      style="grid-area: nums"
+    >
       <div class="col" v-for="(queueItem, ind) in waitingQueueList" :key="ind">
         <MDBCard
           :bg="ind % 2 ? 'primary' : 'warning'"
@@ -118,6 +114,7 @@ export default {
 
     const monitoringTitle = computed(() => {
       const names = {
+        registration: "Registration to Screening",
         screening: "Screening to Vitals",
         vitals: "Vitals to Vaccination",
         vaccination: "Vaccination to Post-Vaccination",
@@ -234,6 +231,12 @@ export default {
         });
     };
 
+    const averageTimePerPerson = computed(() => {
+      if (waitTime.value)
+        return new Date(waitTime.value * 1000).toISOString().substr(11, 8);
+      else return "Waiting...";
+    });
+
     return {
       // stationName,
       // stationStage
@@ -245,9 +248,9 @@ export default {
       advanceNum,
       waitTime,
       rejectNum,
+      averageTimePerPerson,
+      queueList,
     };
   },
 };
 </script>
-
-<style></style>

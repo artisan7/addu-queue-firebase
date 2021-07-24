@@ -417,12 +417,15 @@ export function useMonitoring(stage) {
         );
         waitTime.value =
           numCollection
-            .filter((queueItem) => queueItem.stage > stage)
+            .filter(
+              (queueItem) =>
+                queueItem.stage > stage && queueItem.timestamps[station] != null
+            )
             .map((queueItem) => {
               let currentStationTimestamp;
               let prevStationTimestamp;
 
-              console.log(station);
+              // console.log(station);
 
               if (stage != 1) {
                 currentStationTimestamp = queueItem.timestamps[station];
@@ -431,6 +434,18 @@ export function useMonitoring(stage) {
                 currentStationTimestamp = queueItem.timestamps["registration"];
                 prevStationTimestamp = queueItem.timestamps["issue"];
               }
+
+              // console.log(
+              //   "curr:",
+              //   currentStationTimestamp.seconds,
+              //   "prev:",
+              //   prevStationTimestamp.seconds,
+              //   "difference:",
+              //   currentStationTimestamp.seconds - prevStationTimestamp.seconds
+              // );
+              // console.log(
+              //   currentStationTimestamp.seconds - prevStationTimestamp.seconds
+              // );
 
               return (
                 currentStationTimestamp.seconds - prevStationTimestamp.seconds
@@ -525,34 +540,38 @@ export function useAdmin() {
           message: "Counter created.",
         };
 
-        let uids = [];
+        let uids;
 
-        for (let x = 1; x <= 3; x++) {
-          const email = `station-${x}@issue.station`;
-          const password = `issue!stn${x}`;
-          let userCred;
-          try {
-            userCred = await auth.createUserWithEmailAndPassword(
-              email,
-              password
-            );
-            seedStatus.value = {
-              status: "success",
-              message: `Created user account for issue #${x}`,
-            };
-          } catch (err) {
-            userCred = await auth.signInWithEmailAndPassword(email, password);
-            seedStatus.value = {
-              status: "success",
-              message: `Found user account for issue #${x}`,
-            };
+        for (const station of ["issue", "monitoring"]) {
+          uids = [];
+
+          for (let x = 1; x <= 3; x++) {
+            const email = `station-${x}@${station}.station`;
+            const password = `${station}!stn${x}`;
+            let userCred;
+            try {
+              userCred = await auth.createUserWithEmailAndPassword(
+                email,
+                password
+              );
+              seedStatus.value = {
+                status: "success",
+                message: `Created user account for ${station} #${x}`,
+              };
+            } catch (err) {
+              userCred = await auth.signInWithEmailAndPassword(email, password);
+              seedStatus.value = {
+                status: "success",
+                message: `Found user account for ${station} #${x}`,
+              };
+            }
+            uids.push(userCred.user.uid);
           }
-          uids.push(userCred.user.uid);
-        }
 
-        batch.set(firestore.collection("permissions").doc("issue"), {
-          ids: uids,
-        });
+          batch.set(firestore.collection("permissions").doc(station), {
+            ids: uids,
+          });
+        }
 
         for (const station of stations) {
           uids = [];

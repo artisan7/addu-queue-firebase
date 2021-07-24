@@ -1,0 +1,13 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap");
+@import "~mdb-vue-ui-kit/src/scss/standard/free/_variables.scss";
+$theme-colors: (
+  "primary": #26afe7,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": #ffa322,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark,
+);
+@import "~mdb-vue-ui-kit/src/scss/index.free.scss";
