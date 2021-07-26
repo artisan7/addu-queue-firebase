@@ -1,8 +1,18 @@
 <template>
   <MDBNavbar id="main-nav" container expand="lg" dark bg="primary">
-    <MDBNavbarBrand href="#"
-      ><img src="../public/nav_logo.png" width="100" />
-    </MDBNavbarBrand>
+    <div class="d-flex flex-column align-items-center">
+      <MDBNavbarBrand href="#"
+        ><img src="../public/addu-seal.png" width="80" />
+      </MDBNavbarBrand>
+      <div class="d-flex">
+        <MDBNavbarBrand href="#"
+          ><img src="../public/nav_logo.png" width="80" />
+        </MDBNavbarBrand>
+        <MDBNavbarBrand href="#"
+          ><img src="../public/arisen-logo.png" width="80" />
+        </MDBNavbarBrand>
+      </div>
+    </div>
     <MDBNavbarToggler
       @click="collapse1 = !collapse1"
       target="#navbarSupportedContent"
