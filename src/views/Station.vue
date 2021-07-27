@@ -1,6 +1,6 @@
 <template>
-  <MDBContainer md>
-    <div v-if="stageId !== null || stageId !== undefined">
+  <div>
+    <div v-if="stageId !== null || stageId !== undefined" class="w-100">
       <h3 class="display-1 text-center" style="text-transform: capitalize">
         {{ $route.params.station }}
       </h3>
@@ -12,15 +12,14 @@
     <div v-else>
       <h3 class="display-2">This is not a valid station</h3>
     </div>
-  </MDBContainer>
+  </div>
 </template>
 
 <script>
-import { MDBContainer } from "mdb-vue-ui-kit";
 import StationControl from "../components/StationControl";
 
 export default {
-  components: { MDBContainer, StationControl },
+  components: { StationControl },
   computed: {
     stageId() {
       return this.mapStage[this.$route.params.station];
@@ -36,5 +35,3 @@ export default {
   }),
 };
 </script>
-
-<style></style>

@@ -2,42 +2,36 @@
 THAT ARE CURRENTLY BEING SERVED IN THE STATION -->
 
 <template>
-  <MDBRow>
-    <MDBTable v-for="(nums, index) in displayNumSplit" :key="index">
-      <thead>
-        <tr>
-          <th v-for="station in nums" :key="station.station" scope="col">
+  <div class="row row-cols-10 g-1">
+    <div class="col" v-for="station in serveNums.data" :key="station.station">
+      <div
+        class="card c-main"
+        :class="{
+          'bg-warning': newNums[station.station],
+          'text-white': newNums[station.station],
+        }"
+      >
+        <div class="card-body text-center">
+          <div class="card-title">
             {{ station.station }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td
-            v-for="station in nums"
-            :key="station.station"
-            class="queue-num"
-            :class="{
-              'bg-warning': station.new,
-              'text-white': station.new,
-            }"
-          >
-            {{ station.currentNum || "Free" }}
-          </td>
-        </tr>
-      </tbody>
-    </MDBTable>
-  </MDBRow>
+          </div>
+          <div class="card-text">
+            <h1>{{ station.currentNum || "Free" }}</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import { computed, ref, watch } from "@vue/runtime-core";
 import { useQueue } from "../firebase";
-import { MDBRow, MDBTable } from "mdb-vue-ui-kit";
+// import { MDBRow, MDBTable } from "mdb-vue-ui-kit";
 
 export default {
   name: "StationDisplay",
-  components: { MDBRow, MDBTable },
+  // components: { MDBRow, MDBTable },
   props: { stationName: String, stageId: Number },
   setup(props) {
     // Hooks
@@ -80,9 +74,13 @@ export default {
 
     // Watcher to see if there's new values in the array
     watch(serveNums, (newValue) => {
-      const changeNums = Object.keys(newNums.value).filter((key) =>
-        newValue.changes.includes(key)
-      );
+      console.log("newval", newValue);
+      const changeNums = Object.keys(newNums.value).filter((key) => {
+        const stationVal = newValue.data.filter(
+          (station) => station.station === key
+        )[0];
+        return newValue.changes.includes(key) && stationVal.currentNum != null;
+      });
 
       console.log(changeNums);
 
@@ -106,5 +104,9 @@ export default {
 <style scoped>
 .queue-num {
   transition: 1s all ease;
+}
+
+.c-body {
+  text-align: center;
 }
 </style>
