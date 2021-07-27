@@ -1,91 +1,103 @@
 <template>
-  <MDBNavbar id="main-nav" container expand="lg" dark bg="primary">
-    <div class="d-flex flex-column align-items-center">
-      <MDBNavbarBrand href="#"
-        ><img src="../public/addu-seal.png" width="80" />
-      </MDBNavbarBrand>
+  <div class="d-flex flex-column" style="min-height: 100vh">
+    <MDBNavbar id="main-nav" container expand="lg" dark bg="primary">
       <div class="d-flex">
+        <MDBNavbarBrand href="#"
+          ><img src="../public/addu-seal.png" width="80" />
+        </MDBNavbarBrand>
         <MDBNavbarBrand href="#"
           ><img src="../public/nav_logo.png" width="80" />
         </MDBNavbarBrand>
-        <MDBNavbarBrand href="#"
-          ><img src="../public/arisen-logo.png" width="80" />
-        </MDBNavbarBrand>
       </div>
+
+      <MDBNavbarToggler
+        @click="collapse1 = !collapse1"
+        target="#navbarSupportedContent"
+      ></MDBNavbarToggler>
+      <MDBCollapse v-model="collapse1" id="navbarSupportedContent">
+        <MDBNavbarNav class="mb-2 mb-lg-0">
+          <MDBNavbarItem to="#">
+            <router-link to="/issue" class="nav-link">Issue Num</router-link>
+          </MDBNavbarItem>
+          <MDBNavbarItem to="#">
+            <router-link to="/station/registration" class="nav-link"
+              >Registration Controls</router-link
+            >
+          </MDBNavbarItem>
+          <MDBNavbarItem to="#">
+            <router-link to="/display/registration" class="nav-link"
+              >Display Registration</router-link
+            >
+          </MDBNavbarItem>
+          <MDBNavbarItem>
+            <MDBDropdown class="nav-item" v-model="adminDropdown">
+              <MDBDropdownToggle
+                tag="a"
+                class="nav-link mt-2"
+                @click="adminDropdown = !adminDropdown"
+                >Monitoring</MDBDropdownToggle
+              >
+              <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
+                <li v-for="(station, key) in stations" :key="station" href="#">
+                  <!-- {{ key }} -->
+
+                  <router-link
+                    :to="`/monitoring/${station}`"
+                    class="dropdown-item"
+                    >{{ key }}</router-link
+                  >
+                </li>
+              </MDBDropdownMenu>
+            </MDBDropdown>
+          </MDBNavbarItem>
+
+          <MDBNavbarItem>
+            <MDBDropdown class="nav-item" v-model="displayDropdown">
+              <MDBDropdownToggle
+                tag="a"
+                class="nav-link mt-2"
+                @click="displayDropdown = !displayDropdown"
+                >Admin</MDBDropdownToggle
+              >
+              <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
+                <li href="#">
+                  <router-link to="/admin" class="dropdown-item"
+                    >Admin Controls</router-link
+                  >
+                </li>
+                <li href="#">
+                  <router-link to="/dashboard" class="dropdown-item"
+                    >Admin Dashboard</router-link
+                  >
+                </li>
+              </MDBDropdownMenu>
+            </MDBDropdown>
+          </MDBNavbarItem>
+          <MDBNavbarItem v-if="!isLogin" to="#">
+            <router-link :to="`/signin`" class="nav-link">Sign In</router-link>
+          </MDBNavbarItem>
+          <MDBNavbarItem v-else to="#">
+            <router-link :to="`/signout`" class="nav-link"
+              >Sign Out</router-link
+            >
+          </MDBNavbarItem>
+        </MDBNavbarNav>
+      </MDBCollapse>
+    </MDBNavbar>
+
+    <div class="flex-grow-1">
+      <router-view v-bind="$attrs" />
     </div>
-    <MDBNavbarToggler
-      @click="collapse1 = !collapse1"
-      target="#navbarSupportedContent"
-    ></MDBNavbarToggler>
-    <MDBCollapse v-model="collapse1" id="navbarSupportedContent">
-      <MDBNavbarNav class="mb-2 mb-lg-0">
-        <MDBNavbarItem to="#">
-          <router-link to="/issue" class="nav-link">Issue Num</router-link>
-        </MDBNavbarItem>
-        <MDBNavbarItem to="#">
-          <router-link to="/station/registration" class="nav-link"
-            >Registration Controls</router-link
-          >
-        </MDBNavbarItem>
-        <MDBNavbarItem to="#">
-          <router-link to="/display/registration" class="nav-link"
-            >Display Registration</router-link
-          >
-        </MDBNavbarItem>
-        <MDBNavbarItem>
-          <MDBDropdown class="nav-item" v-model="adminDropdown">
-            <MDBDropdownToggle
-              tag="a"
-              class="nav-link mt-2"
-              @click="adminDropdown = !adminDropdown"
-              >Monitoring</MDBDropdownToggle
-            >
-            <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
-              <li v-for="(station, key) in stations" :key="station" href="#">
-                <!-- {{ key }} -->
-
-                <router-link
-                  :to="`/monitoring/${station}`"
-                  class="dropdown-item"
-                  >{{ key }}</router-link
-                >
-              </li>
-            </MDBDropdownMenu>
-          </MDBDropdown>
-        </MDBNavbarItem>
-
-        <MDBNavbarItem>
-          <MDBDropdown class="nav-item" v-model="displayDropdown">
-            <MDBDropdownToggle
-              tag="a"
-              class="nav-link mt-2"
-              @click="displayDropdown = !displayDropdown"
-              >Admin</MDBDropdownToggle
-            >
-            <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
-              <li href="#">
-                <router-link to="/admin" class="dropdown-item"
-                  >Admin Controls</router-link
-                >
-              </li>
-              <li href="#">
-                <router-link to="/dashboard" class="dropdown-item"
-                  >Admin Dashboard</router-link
-                >
-              </li>
-            </MDBDropdownMenu>
-          </MDBDropdown>
-        </MDBNavbarItem>
-        <MDBNavbarItem v-if="!isLogin" to="#">
-          <router-link :to="`/signin`" class="nav-link">Sign In</router-link>
-        </MDBNavbarItem>
-        <MDBNavbarItem v-else to="#">
-          <router-link :to="`/signout`" class="nav-link">Sign Out</router-link>
-        </MDBNavbarItem>
-      </MDBNavbarNav>
-    </MDBCollapse>
-  </MDBNavbar>
-  <router-view v-bind="$attrs" />
+    <div
+      class="d-flex align-items-center justify-content-center"
+      style="background: #2f84bd"
+    >
+      <MDBNavbarBrand href="#"
+        ><img src="../public/arisen-logo.png" width="100" />
+      </MDBNavbarBrand>
+      <span class="subtitle-1 text-white">Powered by ARISEn</span>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -153,17 +165,5 @@ export default {
 #main-nav {
   background-color: #2f84bd !important;
   margin-bottom: 10px;
-}
-
-.alert {
-  transition: all 500ms ease;
-  opacity: 0;
-  overflow: none;
-  transform: translateY(-200%);
-}
-
-.alert.active {
-  opacity: 1;
-  transform: translateY(0);
 }
 </style>
