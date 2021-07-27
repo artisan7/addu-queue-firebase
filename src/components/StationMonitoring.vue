@@ -52,7 +52,12 @@
       <MDBBtn color="success" class="h-100" @click="advanceNum">
         Move to Next Step
       </MDBBtn>
-      <MDBBtn color="danger" class="h-100" @click="rejectNum">
+      <MDBBtn
+        v-if="stationStage < 6"
+        color="danger"
+        class="h-100"
+        @click="rejectNum"
+      >
         Reject Patient
       </MDBBtn>
     </div>
