@@ -2,7 +2,7 @@
   <div class="dashboard-layout container">
     <MDBCard
       style="grid-area: numVax"
-      bg="success"
+      bg="primary"
       text="white"
       class="text-center"
     >
@@ -19,14 +19,29 @@
     </MDBCard>
     <MDBCard
       style="grid-area: AvgTime"
-      bg="primary"
-      text="white"
+      bg="warning"
+      text="black"
       class="text-center"
     >
       <MDBCardBody>
         <MDBCardTitle>Average Time Per Person</MDBCardTitle>
         <MDBCardText class="display-2"
           >{{ averageTimePerPerson ? averageTimePerPerson : `Waiting...` }}
+        </MDBCardText>
+      </MDBCardBody>
+    </MDBCard>
+    <MDBCard
+      style="grid-area: timeRegistration"
+      bg="primary"
+      text="white"
+      class="text-center"
+    >
+      <MDBCardBody>
+        <MDBCardTitle>Average Time In Registration</MDBCardTitle>
+        <MDBCardText class="display-2"
+          >{{
+            averageTimeInRegistration ? averageTimeInRegistration : `Waiting...`
+          }}
         </MDBCardText>
       </MDBCardBody>
     </MDBCard>
@@ -37,12 +52,7 @@
       </MDBCardBody>
     </MDBCard>
 
-    <MDBCard
-      style="grid-area: rejected"
-      bg="danger"
-      text="white"
-      class="text-center"
-    >
+    <MDBCard style="grid-area: rejected" bg="warning" class="text-center">
       <MDBCardBody>
         <MDBCardTitle>Number of People Rejected</MDBCardTitle>
         <MDBCardText class="display-2">{{ numRejected.length }}</MDBCardText>
@@ -58,10 +68,10 @@
         class="text-center"
       >
         <MDBCardBody>
-          <MDBCardTitle
-            >Number of People Served in {{ queue.station }}</MDBCardTitle
+          <MDBCardTitle class="lead"
+            >Number of People in {{ queue.station }}</MDBCardTitle
           >
-          <MDBCardText class="display-2">{{ queue.count }}</MDBCardText>
+          <MDBCardText class="display-3">{{ queue.count }}</MDBCardText>
         </MDBCardBody>
       </MDBCard>
     </div>
@@ -90,18 +100,24 @@ export default {
     const queueNumList = getQueueNums();
 
     const peopleInQueue = computed(() => {
-      return queueNumList.value.filter((queueNum) => queueNum.stage < 10);
+      return queueNumList.value.filter(
+        (queueNum) => queueNum.stage < 10 && queueNum.stage >= 0
+      );
     });
 
     const averageTimePerPerson = computed(() => {
       // Filter out the people still in queue
+      // const finished = queueNumList.value.filter(
+      //   (queueNum) => queueNum.stage === 10
+      // );
+
       const finished = queueNumList.value.filter(
-        (queueNum) => queueNum.stage === 10
+        (queueNum) => queueNum.timestamps.post !== null
       );
 
       if (finished.length === 0) return "Waiting...";
 
-      console.log(finished.length, finished, queueNumList.value);
+      // console.log(finished.length, finished, queueNumList.value);
 
       const seconds =
         finished
@@ -142,7 +158,31 @@ export default {
     });
 
     const numVaccinated = computed(() => {
-      return queueNumList.value.filter((queueNum) => queueNum.stage == 10);
+      return queueNumList.value.filter(
+        (queueNum) => queueNum.timestamps.vaccination !== null
+      );
+    });
+
+    const averageTimeInRegistration = computed(() => {
+      const finished = queueNumList.value.filter(
+        (queueNum) => queueNum.timestamps.registration !== null
+      );
+
+      if (finished.length === 0) return "Waiting...";
+
+      // console.log(finished.length, finished, queueNumList.value);
+
+      const seconds =
+        finished
+          .map((queueNum) => {
+            const enterTime = queueNum.timestamps.issue;
+            const exitTime = queueNum.timestamps.registration;
+            // console.log(queueNum, "Enter: ", enterTime, "Exit:", exitTime);
+            // Calculate the time in seconds
+            return exitTime.seconds - enterTime.seconds;
+          })
+          .reduce((a, b) => a + b, 0) / finished.length; // Add up the seconds then average
+      return new Date(seconds * 1000).toISOString().substr(11, 8);
     });
 
     return {
@@ -152,27 +192,8 @@ export default {
       numRejected,
       queueInStations,
       numVaccinated,
+      averageTimeInRegistration,
     };
   },
 };
 </script>
-
-<style>
-.dashboard-layout {
-  display: grid;
-  grid-template-areas:
-    "numVax numVax"
-    "inQueue AvgTime"
-    "latestIssued rejected"
-    "numPerson numPerson";
-  gap: 4px;
-  margin: 1rem;
-}
-
-.num-person-display {
-  grid-area: numPerson;
-  display: grid;
-  gap: 4px;
-  grid-template-columns: 1fr 1fr 1fr;
-}
-</style>

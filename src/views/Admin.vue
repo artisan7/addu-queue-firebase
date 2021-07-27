@@ -21,24 +21,8 @@
         </button>
       </div>
     </div>
-    <div class="row">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Queue Number</th>
-            <th>Current Stage</th>
-            <!-- <th>Actions</th> -->
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="queueNum in queueNumList" :key="queueNum.num">
-            <td>{{ queueNum.num }}</td>
-            <td>{{ getStage(queueNum.stage) }}</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+
+    <queue-list-table :queueNumList="queueNumList"></queue-list-table>
   </div>
 </template>
 
@@ -46,8 +30,10 @@
 import { createToast } from "mosha-vue-toastify";
 import { useAdmin } from "../firebase";
 import { ref, watch } from "@vue/runtime-core";
+import QueueListTable from "../components/QueueListTable.vue";
 
 export default {
+  components: { QueueListTable },
   setup() {
     const { seedUsers, resetQueue, runTestQueries, getQueueNums } = useAdmin();
     const { testQuery, queryStatus } = runTestQueries();

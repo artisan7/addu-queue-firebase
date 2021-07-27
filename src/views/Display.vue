@@ -1,6 +1,6 @@
 <template>
-  <MDBContainer md class="d-flex flex-column align-items-center">
-    <div v-if="stageId">
+  <MDBContainer fluid class="d-flex flex-column align-items-center w-100">
+    <div v-if="stageId" class="w-100">
       <h3>
         <span style="text-transform: capitalize">{{
           $route.params.station

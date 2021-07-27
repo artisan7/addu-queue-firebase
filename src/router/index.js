@@ -121,6 +121,8 @@ router.beforeEach((to, from, next) => {
         } else if (to.meta.stationRequired) {
           if (
             adminUids.includes(user.value.uid) ||
+            (to.name === "Monitoring" &&
+              userPermissions.monitoring.includes(user.value.uid)) ||
             userPermissions[to.params.station].includes(user.value.uid)
           )
             next();
