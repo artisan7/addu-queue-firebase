@@ -2,50 +2,22 @@
 THAT ARE CURRENTLY BEING SERVED IN THE STATION -->
 
 <template>
-  <!-- <MDBRow>
-
-    <MDBTable v-for="(nums, index) in displayNumSplit" :key="index">
-      <thead>
-        <tr>
-          <th v-for="station in nums" :key="station.station" scope="col">
-            {{ station.station }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td
-            v-for="station in nums"
-            :key="station.station"
-            class="queue-num"
-            :class="{
-              'bg-warning': station.new,
-              'text-white': station.new,
-            }"
-          >
-            {{ station.currentNum || "Free" }}
-          </td>
-        </tr>
-      </tbody>
-    </MDBTable>
-  </MDBRow> -->
-  <div
-    class="row row-cols-5 g-2"
-    v-for="(nums, index) in displayNumSplit"
-    :key="index"
-  >
-    <div class="col" v-for="station in nums" :key="station.station">
+  <div class="row row-cols-10 g-1">
+    <div class="col" v-for="station in serveNums.data" :key="station.station">
       <div
-        class="card"
+        class="card c-main"
         :class="{
-          'bg-warning': station.new,
+          'bg-warning': newNums[station.station],
+          'text-white': newNums[station.station],
         }"
       >
-        <div class="card-body">
+        <div class="card-body text-center">
           <div class="card-title">
             {{ station.station }}
           </div>
-          <div class="card-text">{{ station.currentNum || "Free" }}</div>
+          <div class="card-text">
+            <h1>{{ station.currentNum || "Free" }}</h1>
+          </div>
         </div>
       </div>
     </div>
@@ -132,5 +104,9 @@ export default {
 <style scoped>
 .queue-num {
   transition: 1s all ease;
+}
+
+.c-body {
+  text-align: center;
 }
 </style>

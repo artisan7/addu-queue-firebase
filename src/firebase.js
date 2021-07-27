@@ -244,7 +244,7 @@ export function useQueue() {
 
       // Update the queue item
       await queueNumCollection.doc(queueId).update({
-        // stage: increment, // Comment this out if you're going to use monitoring
+        stage: firebase.firestore.FieldValue.increment(1), // Comment this out if you're going to use monitoring
         [`timestamps.${station}`]: firebase.firestore.FieldValue.serverTimestamp(),
       });
 
@@ -727,7 +727,7 @@ export function useAdmin() {
 
   const getQueueNums = () => {
     const queueNums = ref([]);
-    queueNumCollection.onSnapshot((snapshot) => {
+    queueNumCollection.orderBy("num", "asc").onSnapshot((snapshot) => {
       queueNums.value = snapshot.docs.map((doc) => doc.data());
     });
     return queueNums;

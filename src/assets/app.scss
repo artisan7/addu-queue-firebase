@@ -18,8 +18,8 @@
 .dashboard-layout {
   display: grid;
   grid-template-areas:
-    "numVax numVax"
-    "inQueue AvgTime"
+    "numVax AvgTime"
+    "inQueue timeRegistration"
     "latestIssued rejected"
     "numPerson numPerson";
   gap: 4px;

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="stageId !== null || stageId !== undefined">
+    <div v-if="stageId !== null || stageId !== undefined" class="w-100">
       <h3 class="display-1 text-center" style="text-transform: capitalize">
         {{ $route.params.station }}
       </h3>
@@ -35,5 +35,3 @@ export default {
   }),
 };
 </script>
-
-<style></style>

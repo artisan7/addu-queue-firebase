@@ -6,7 +6,7 @@
           ><img src="../public/addu-seal.png" width="80" />
         </MDBNavbarBrand>
         <MDBNavbarBrand href="#"
-          ><img src="../public/nav_logo.png" width="80" />
+          ><img src="../public/nav_logo.png" width="150" />
         </MDBNavbarBrand>
       </div>
 
@@ -88,12 +88,13 @@
     <div class="flex-grow-1">
       <router-view v-bind="$attrs" />
     </div>
+
     <div
       class="d-flex align-items-center justify-content-center"
       style="background: #2f84bd"
     >
       <MDBNavbarBrand href="#"
-        ><img src="../public/arisen-logo.png" width="100" />
+        ><img src="../public/arisen-logo.png" width="80" />
       </MDBNavbarBrand>
       <span class="subtitle-1 text-white">Powered by ARISEn</span>
     </div>
@@ -118,7 +119,7 @@ import { useAuth } from "./firebase";
 export default {
   data: () => ({
     stations: {
-      Registration: "registration",
+      // Registration: "registration",
       Screening: "screening",
       Vitals: "vitals",
       Vaccination: "vaccination",
