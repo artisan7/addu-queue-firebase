@@ -51,8 +51,10 @@ export default {
         const processing = ref(false);
 
         const localSeedUsers = () => {
-            let sure = prompt("Are you sure?", null);
-            if (sure === null) return;
+            let sure = prompt(
+                "Are you sure? Please type 'very sure' to verify."
+            );
+            if (sure !== "very sure") return;
             processing.value = true;
 
             seedUserFn()
@@ -87,6 +89,11 @@ export default {
 
         const localResetQueue = () => {
             console.log("Resetting...");
+
+            let sure = prompt(
+                "Are you sure? Please type 'i am resetting the queue' to verify."
+            );
+            if (sure !== "i am resetting the queue") return;
 
             processing.value = true;
             resetQueue()
