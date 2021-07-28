@@ -39,7 +39,7 @@ export default {
 
     // Data vars
     var serveNums = stationDisplayQueueNums(props.stationName);
-    const alert = new Audio("/alert.wav");
+    const alert = new Audio("/notification.wav");
     const newNums = ref({
       "Station 1": false,
       "Station 2": false,
