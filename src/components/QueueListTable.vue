@@ -3,6 +3,7 @@
   <div class="row">
     <div class="row my-4">
       <div class="col">
+        {{ stageFilter }}
         <label for="ascendingNums">Order Numbers: </label>
         <div id="ascendingNums">
           <div class="form-check form-check-inline">
