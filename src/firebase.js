@@ -532,7 +532,7 @@ export function useAdmin() {
         const batch = firestore.batch();
 
         batch.set(queueCounterRef, {
-          counter: 0,
+          count: 0,
         });
 
         seedStatus.value = {

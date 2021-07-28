@@ -49,7 +49,12 @@
     </MDBCard>
 
     <div class="d-flex flex-column h-100 m-0 gap-2" style="grid-area: controls">
-      <MDBBtn color="success" class="h-100" @click="advanceNum">
+      <MDBBtn
+        color="success"
+        class="h-100"
+        @click="advanceNum"
+        :disabled="processing"
+      >
         Move to Next Step
       </MDBBtn>
       <MDBBtn
@@ -57,6 +62,7 @@
         color="danger"
         class="h-100"
         @click="rejectNum"
+        :disabled="processing"
       >
         Reject Patient
       </MDBBtn>
@@ -116,6 +122,7 @@ export default {
 
     const { queueList, waitTime } = getStationQueueList();
     const currentQueueNumber = ref(null);
+    const processing = ref(false);
 
     const monitoringTitle = computed(() => {
       const names = {
@@ -151,7 +158,9 @@ export default {
     };
 
     const advanceNum = () => {
+      processing.value = true;
       if (!currentQueueNumber.value) {
+        processing.value = false;
         createToast(
           {
             title: "Error",
@@ -167,6 +176,7 @@ export default {
 
       advanceQueueNumber(currentQueueNumber.value.id)
         .then((message) => {
+          processing.value = false;
           createToast(
             {
               title: "Success",
@@ -180,6 +190,7 @@ export default {
           currentQueueNumber.value = null;
         })
         .catch((err) => {
+          processing.value = false;
           createToast(
             {
               title: "Error",
@@ -194,6 +205,7 @@ export default {
     };
 
     const rejectNum = () => {
+      processing.value = true;
       if (!currentQueueNumber.value) {
         createToast(
           {
@@ -205,6 +217,7 @@ export default {
             position: "top-center",
           }
         );
+        processing.value = false;
         return;
       }
 
@@ -221,6 +234,8 @@ export default {
             }
           );
           currentQueueNumber.value = null;
+
+          processing.value = false;
         })
         .catch((err) => {
           createToast(
@@ -233,6 +248,8 @@ export default {
               position: "top-center",
             }
           );
+
+          processing.value = false;
         });
     };
 
@@ -255,6 +272,7 @@ export default {
       rejectNum,
       averageTimePerPerson,
       queueList,
+      processing,
     };
   },
 };
