@@ -52,9 +52,9 @@ export default {
 
         const localSeedUsers = () => {
             let sure = prompt(
-                "Are you sure? Please type 'very sure' to verify."
+                "Are you sure? Please type 'resbakuna' to verify."
             );
-            if (sure !== "very sure") return;
+            if (sure !== "resbakuna") return;
             processing.value = true;
 
             seedUserFn()
@@ -91,9 +91,9 @@ export default {
             console.log("Resetting...");
 
             let sure = prompt(
-                "Are you sure? Please type 'i am resetting the queue' to verify."
+                "Are you sure? Please type 'resbakuna' to verify."
             );
-            if (sure !== "i am resetting the queue") return;
+            if (sure !== "resbakuna") return;
 
             processing.value = true;
             resetQueue()
