@@ -3,7 +3,6 @@ import { useAuthServer } from "../firebase";
 import { adminUids } from "../secrets";
 
 import Issue from "../views/Issue.vue";
-import Home from "../views/Home.vue";
 import Station from "../views/Station.vue";
 import Display from "../views/Display.vue";
 import SignIn from "../views/SignIn.vue";
@@ -11,6 +10,7 @@ import SignOut from "../views/SignOut.vue";
 import Admin from "../views/Admin.vue";
 import Monitoring from "../views/Monitoring.vue";
 import Dashboard from "../views/Dashboard.vue";
+import QueueOverview from "../views/QueueOverview.vue";
 
 const { isLogin, user, permissions } = useAuthServer();
 
@@ -18,19 +18,11 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    component: Home,
+    component: Dashboard,
     props: {
-      error: false,
+      authRequired: true,
+      adminRequired: true,
     },
-  },
-  {
-    path: "/about",
-    name: "About",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue"),
   },
   {
     path: "/issue",
@@ -51,6 +43,15 @@ const routes = [
     },
   },
   {
+    path: "/monitoring/overview",
+    name: "Queue List Overview",
+    component: QueueOverview,
+    meta: {
+      authRequired: true,
+      stationRequired: true,
+    },
+  },
+  {
     path: "/monitoring/:station",
     name: "Monitoring",
     component: Monitoring,
@@ -59,6 +60,7 @@ const routes = [
       stationRequired: true,
     },
   },
+
   {
     path: "/display/:station",
     name: "Station Display",
@@ -86,15 +88,15 @@ const routes = [
       adminRequired: true,
     },
   },
-  {
-    path: "/dashboard",
-    name: "Dashboard",
-    component: Dashboard,
-    meta: {
-      authRequired: true,
-      adminRequired: true,
-    },
-  },
+  // {
+  //   path: "/dashboard",
+  //   name: "Dashboard",
+  //   component: Dashboard,
+  //   meta: {
+  //     authRequired: true,
+  //     adminRequired: true,
+  //   },
+  // },
 ];
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
@@ -121,7 +123,7 @@ router.beforeEach((to, from, next) => {
         } else if (to.meta.stationRequired) {
           if (
             adminUids.includes(user.value.uid) ||
-            (to.name === "Monitoring" &&
+            ((to.name === "Monitoring" || to.name === "Queue List Overview") &&
               userPermissions.monitoring.includes(user.value.uid)) ||
             userPermissions[to.params.station].includes(user.value.uid)
           )

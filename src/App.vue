@@ -38,9 +38,12 @@
                 >Monitoring</MDBDropdownToggle
               >
               <MDBDropdownMenu aria-labelledby="dropdownMenuButton">
+                <li href="#">
+                  <router-link to="/monitoring/overview" class="dropdown-item"
+                    >Queue List Overview</router-link
+                  >
+                </li>
                 <li v-for="(station, key) in stations" :key="station" href="#">
-                  <!-- {{ key }} -->
-
                   <router-link
                     :to="`/monitoring/${station}`"
                     class="dropdown-item"
@@ -90,7 +93,7 @@
     </div>
 
     <div
-      class="d-flex align-items-center justify-content-center"
+      class="d-flex align-items-center justify-content-center mt-4"
       style="background: #2f84bd"
     >
       <MDBNavbarBrand href="#"

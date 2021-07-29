@@ -58,7 +58,7 @@
         Move to Next Step
       </MDBBtn>
       <MDBBtn
-        v-if="stationStage < 6"
+        v-if="stationStage < 8"
         color="danger"
         class="h-100"
         @click="rejectNum"

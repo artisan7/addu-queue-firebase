@@ -3,7 +3,6 @@
   <div class="row">
     <div class="row my-4">
       <div class="col">
-        {{ stageFilter }}
         <label for="ascendingNums">Order Numbers: </label>
         <div id="ascendingNums">
           <div class="form-check form-check-inline">
@@ -80,7 +79,7 @@ export default {
       // console.log(this.queueNumList.value);
       // if (!this.queueNumList.value) return;
       const filters = [
-        [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // No filter
+        [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], // No filter
         [0, 1], // Registration
         [2, 3], //  Vitals
         [4, 5], // Counseling
