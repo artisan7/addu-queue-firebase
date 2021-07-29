@@ -32,9 +32,11 @@ export default {
   data: () => ({
     mapStage: {
       registration: 1,
-      screening: 3,
-      vitals: 5,
-      vaccination: 7,
+      vitals: 3,
+      counseling: 5,
+      screening: 7,
+      vaccination: 9,
+      post: 11,
     },
   }),
 };

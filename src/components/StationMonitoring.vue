@@ -127,8 +127,9 @@ export default {
     const monitoringTitle = computed(() => {
       const names = {
         registration: "Registration to Screening",
-        screening: "Screening to Vitals",
-        vitals: "Vitals to Vaccination",
+        vitals: "Vitals to Counseling",
+        counseling: "Counseling to Screening",
+        screening: "Screening to Vaccination",
         vaccination: "Vaccination to Post-Vaccination",
         post: "Post-Vaccination to Exit",
       };
@@ -139,6 +140,7 @@ export default {
       const names = {
         screening: "Screening",
         vitals: "Vitals",
+        counseling: "Counseling",
         vaccination: "Vaccination",
         post: "Post-Vaccination",
       };

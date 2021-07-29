@@ -139,8 +139,9 @@ export default {
     const queueInStations = computed(() => {
       const conditions = [
         "registration",
-        "screening",
         "vitals",
+        "counseling",
+        "screening",
         "vaccination",
         "post",
       ];
