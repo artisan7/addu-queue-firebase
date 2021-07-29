@@ -1,5 +1,5 @@
 <template>
-  <MDBCard id="control-layout" class=" text-center">
+  <MDBCard id="control-layout" class="text-center">
     <MDBCardBody id="control-layout-body">
       <h2 class="display-3">Current Queue Number</h2>
       <div class="d-flex justify-content-center m-2">
@@ -26,7 +26,7 @@
         <MDBBtn
           color="primary"
           :disabled="processing"
-          @click="callNext"
+          @click="callNextCloud"
           size="lg"
           >Call Next Number</MDBBtn
         >
@@ -98,6 +98,7 @@ export default {
     // Hooks
     const {
       callForNextNum,
+      callForNextNumCloud,
       finishCurrentNum,
       unqueueNum,
       getQueueNumberByAuth,
@@ -164,10 +165,33 @@ export default {
         });
     };
 
+    const callNextCloud = async () => {
+      //   console.log("CALLING FOR NEXT", props.stageId);
+      processing.value = true;
+
+      await callForNextNumCloud(props.stageId)
+        .then((queueNum) => {
+          currentlyServing.value = queueNum;
+          processing.value = false;
+        })
+        .catch((err) => {
+          createToast(
+            {
+              title: "Error",
+              description: err,
+            },
+            {
+              type: "danger",
+              position: "top-center",
+            }
+          );
+          processing.value = false;
+        });
+    };
     // Combine finish and calling
     const finishAndCallNext = async () => {
       await finishCurrent();
-      await callNext();
+      await callNextCloud();
     };
 
     // Unqueue current number
@@ -264,6 +288,7 @@ export default {
       currentlyServing,
       finishCurrent,
       callNext,
+      callNextCloud,
       processing,
       finishAndCallNext,
       unqueueNumLocal,
