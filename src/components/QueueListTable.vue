@@ -39,12 +39,13 @@
         >
           <option :value="0">No Filter</option>
           <option :value="1">Registration</option>
-          <option :value="2">Screening</option>
-          <option :value="3">Vitals</option>
-          <option :value="4">Vaccination</option>
-          <option :value="5">Post Vaccination</option>
-          <option :value="6">Done</option>
-          <option :value="7">Rejected</option>
+          <option :value="2">Vitals</option>
+          <option :value="3">Counseling</option>
+          <option :value="4">Screening</option>
+          <option :value="5">Vaccination</option>
+          <option :value="6">Post Vaccination</option>
+          <option :value="7">Done</option>
+          <option :value="8">Rejected</option>
         </select>
       </div>
     </div>
@@ -81,11 +82,12 @@ export default {
       const filters = [
         [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // No filter
         [0, 1], // Registration
-        [2, 3], // Screening
-        [4, 5], // Vitals
-        [6, 7], // Vaccination
-        [8, 9], // Post-Vaccination
-        [10], // Exit
+        [2, 3], //  Vitals
+        [4, 5], // Counseling
+        [6, 7], // Screening
+        [8, 9], // Vaccination
+        [10, 11], // Post-Vaccination
+        [12], // Exit
         [-1], // Exit
       ];
 
@@ -106,10 +108,12 @@ export default {
         "Issued Num",
         // "Registration",
         "Registration",
-        "Screening",
-        "Screening",
         "Vitals",
         "Vitals",
+        "Counseling",
+        "Counseling",
+        "Screening",
+        "Screening",
         "Vaccination",
         "Vaccination",
         "Post-Vaccination",

@@ -120,8 +120,9 @@ export default {
   data: () => ({
     stations: {
       // Registration: "registration",
-      Screening: "screening",
       Vitals: "vitals",
+      Counseling: "counseling",
+      Screening: "screening",
       Vaccination: "vaccination",
       "Post Vaccination": "post",
     },
