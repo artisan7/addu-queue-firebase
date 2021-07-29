@@ -2,11 +2,15 @@
   <div class="d-flex flex-column" style="min-height: 100vh">
     <MDBNavbar id="main-nav" container expand="lg" dark bg="primary">
       <div class="d-flex">
-        <MDBNavbarBrand href="#"
-          ><img src="../public/addu-seal.png" width="80" />
+        <MDBNavbarBrand href="#">
+          <router-link to="/"
+            ><img src="../public/addu-seal.png" height="100" />
+          </router-link>
         </MDBNavbarBrand>
-        <MDBNavbarBrand href="#"
-          ><img src="../public/nav_logo.png" width="150" />
+        <MDBNavbarBrand href="#">
+          <router-link to="/">
+            <img src="../public/nav_logo.png" height="80" />
+          </router-link>
         </MDBNavbarBrand>
       </div>
 
@@ -93,13 +97,10 @@
     </div>
 
     <div
-      class="d-flex align-items-center justify-content-center mt-4"
-      style="background: #2f84bd"
+      class="d-flex flex-column align-items-center justify-content-center mt-4"
     >
-      <MDBNavbarBrand href="#"
-        ><img src="../public/arisen-logo.png" width="80" />
-      </MDBNavbarBrand>
-      <span class="subtitle-1 text-white">Powered by ARISEn</span>
+      <h5 style="transform: translateY(25px)">Powered by</h5>
+      <img src="/horizontal-logo.png" height="100" />
     </div>
   </div>
 </template>
