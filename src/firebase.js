@@ -94,7 +94,7 @@ const queueNumCollection = firestore.collection("queue");
 
 /*** Collection of queue numbers in ascending order */
 // const queueNumAscending = queueNumCollection.orderBy("queueTime", "asc");
-const queueNumAscending = queueNumCollection.orderBy("num", "asc");
+const queueNumAscending = queueNumCollection.orderBy("queueTime", "asc");
 
 /** Counter for the queue */
 const queueCounterRef = firestore.collection("counter").doc("queueNum");
@@ -389,7 +389,7 @@ export function useMonitoring(stage) {
   let station;
   if (stage != 1) station = stations[stage / 2];
   else station = stations[0];
-  const prevStation = stations[stage / 2 - 1];
+  // const prevStation = stations[stage / 2 - 1];
 
   /** Get a list of queue numbers in the current station
    *  and the stations above it. This is so we can calculate
@@ -400,8 +400,9 @@ export function useMonitoring(stage) {
     const waitTime = ref(null);
 
     queueNumCollection
-      .where("stage", ">=", stage)
-      .orderBy("stage", "asc")
+      // .where("stage", ">=", stage)
+      .where("stage", "==", stage)
+      // .orderBy("stage", "asc")
       .orderBy("num", "asc")
       .onSnapshot((snapshot) => {
         const numCollection = snapshot.docs.map((doc) => {
@@ -413,43 +414,45 @@ export function useMonitoring(stage) {
         queueList.value = numCollection.filter(
           (queueItem) => queueItem.stage == stage
         );
-        waitTime.value =
-          numCollection
-            .filter(
-              (queueItem) =>
-                queueItem.stage > stage && queueItem.timestamps[station] != null
-            )
-            .map((queueItem) => {
-              let currentStationTimestamp;
-              let prevStationTimestamp;
 
-              // console.log(station);
+        // Commented out due to wait time being too costly
+        // waitTime.value =
+        //   numCollection
+        //     .filter(
+        //       (queueItem) =>
+        //         queueItem.stage > stage && queueItem.timestamps[station] != null
+        //     )
+        //     .map((queueItem) => {
+        //       let currentStationTimestamp;
+        //       let prevStationTimestamp;
 
-              if (stage != 1) {
-                currentStationTimestamp = queueItem.timestamps[station];
-                prevStationTimestamp = queueItem.timestamps[prevStation];
-              } else {
-                currentStationTimestamp = queueItem.timestamps["registration"];
-                prevStationTimestamp = queueItem.timestamps["issue"];
-              }
+        //       // console.log(station);
 
-              // console.log(
-              //   "curr:",
-              //   currentStationTimestamp.seconds,
-              //   "prev:",
-              //   prevStationTimestamp.seconds,
-              //   "difference:",
-              //   currentStationTimestamp.seconds - prevStationTimestamp.seconds
-              // );
-              // console.log(
-              //   currentStationTimestamp.seconds - prevStationTimestamp.seconds
-              // );
+        //       if (stage != 1) {
+        //         currentStationTimestamp = queueItem.timestamps[station];
+        //         prevStationTimestamp = queueItem.timestamps[prevStation];
+        //       } else {
+        //         currentStationTimestamp = queueItem.timestamps["registration"];
+        //         prevStationTimestamp = queueItem.timestamps["issue"];
+        //       }
 
-              return (
-                currentStationTimestamp.seconds - prevStationTimestamp.seconds
-              );
-            })
-            .reduce((a, b) => a + b, 0) / numCollection.length;
+        //       // console.log(
+        //       //   "curr:",
+        //       //   currentStationTimestamp.seconds,
+        //       //   "prev:",
+        //       //   prevStationTimestamp.seconds,
+        //       //   "difference:",
+        //       //   currentStationTimestamp.seconds - prevStationTimestamp.seconds
+        //       // );
+        //       // console.log(
+        //       //   currentStationTimestamp.seconds - prevStationTimestamp.seconds
+        //       // );
+
+        //       return (
+        //         currentStationTimestamp.seconds - prevStationTimestamp.seconds
+        //       );
+        //     })
+        //     .reduce((a, b) => a + b, 0) / numCollection.length;
       });
 
     return { queueList, waitTime };

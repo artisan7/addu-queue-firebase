@@ -16,7 +16,7 @@
     </MDBCard>
 
     <!-- Average Waiting Time -->
-    <MDBCard style="grid-area: avgTime">
+    <!-- <MDBCard style="grid-area: avgTime">
       <MDBCardBody class="text-center">
         <MDBCardTitle>Average Waiting Time</MDBCardTitle>
         <MDBCardText class="card-text">
@@ -25,8 +25,8 @@
             h:m:s
           </p>
         </MDBCardText>
-      </MDBCardBody>
-    </MDBCard>
+      </MDBCardBody> -->
+    <!-- </MDBCard> -->
 
     <div
       class="bg-primary text-white display-6 text-center p-2 rounded shadow"
@@ -69,11 +69,18 @@
     </div>
     <!-- </div> -->
     <div
-      class="row row-cols-2 row-cols-md-4 row-cols-lg-5 mt-4"
+      class="row row-cols-2 row-cols-md-3 row-cols-lg-5 mt-4"
       style="grid-area: nums"
     >
       <div class="col" v-for="(queueItem, ind) in waitingQueueList" :key="ind">
-        <MDBCard
+
+              <MDBBtn :color="ind % 2 ? 'primary' : 'warning'" class="w-100"
+                  @click.prevent="selectQueueNumber(ind)">
+                <h1>{{ queueItem.num }}</h1>
+                <p>Queue No.</p>
+              </MDBBtn>
+              
+        <!-- <MDBCard
           :bg="ind % 2 ? 'primary' : 'warning'"
           :text="ind % 2 ? 'white' : 'black'"
           class="text-center my-1"
@@ -91,7 +98,7 @@
               <MDBCardText>Queue Num</MDBCardText>
             </MDBCardBody>
           </a>
-        </MDBCard>
+        </MDBCard> -->
       </div>
     </div>
   </div>

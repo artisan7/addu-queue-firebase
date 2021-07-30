@@ -59,6 +59,10 @@
       </MDBCardBody>
     </MDBCard>
 
+    <div class="bg-primary lead text-white rounded text-center p-2" style="grid-area: numLabel">
+      Number of People in Stations
+    </div>
+
     <div class="num-person-display">
       <MDBCard
         v-for="(queue, ind) in queueInStations"
@@ -69,12 +73,34 @@
       >
         <MDBCardBody>
           <MDBCardTitle class="lead"
-            >Number of People in {{ queue.station }}</MDBCardTitle
+            >{{ queue.station }}</MDBCardTitle
           >
           <MDBCardText class="display-3">{{ queue.count }}</MDBCardText>
         </MDBCardBody>
       </MDBCard>
     </div>
+<!-- 
+    <div class="bg-primary lead text-white rounded text-center p-2" style="grid-area: waitLabel">
+      Number of People in Stations
+    </div>
+
+    <div class="num-person-display" style="grid-area: waitTime">
+      <MDBCard
+        v-for="(queue, ind) in queueInStations"
+        :key="queue.station"
+        :bg="ind % 2 ? 'primary' : 'warning'"
+        :text="ind % 2 ? 'white' : 'black'"
+        class="text-center"
+      >
+        <MDBCardBody>
+          <MDBCardTitle class="lead"
+            >{{ queue.station }}</MDBCardTitle
+          >
+          <MDBCardText class="display-3">TODO WAITTIME</MDBCardText>
+        </MDBCardBody>
+      </MDBCard>
+    </div> -->
+
   </div>
 </template>
 
@@ -101,7 +127,7 @@ export default {
 
     const peopleInQueue = computed(() => {
       return queueNumList.value.filter(
-        (queueNum) => queueNum.stage < 10 && queueNum.stage >= 0
+        (queueNum) => queueNum.stage <= 10 && queueNum.stage >= 0
       );
     });
 
@@ -160,7 +186,7 @@ export default {
 
     const numVaccinated = computed(() => {
       return queueNumList.value.filter(
-        (queueNum) => queueNum.timestamps.vaccination !== null
+        (queueNum) => queueNum.stage > 8
       );
     });
 

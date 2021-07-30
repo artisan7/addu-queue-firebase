@@ -6,7 +6,7 @@
 .monitoring-layout {
   display: grid;
   grid-template-areas:
-    "numWaiting avgTime"
+    "numWaiting numWaiting"
     "hero hero"
     "numSel numSel"
     "controls controls"
@@ -21,7 +21,10 @@
     "numVax AvgTime"
     "inQueue timeRegistration"
     "latestIssued rejected"
-    "numPerson numPerson";
+    "numLabel numLabel"
+    "numPerson numPerson"
+    "waitLabel waitLabel"
+    "waitTime waitTime";
   gap: 4px;
   margin: auto;
 }
@@ -37,7 +40,7 @@
   .monitoring-layout {
     display: grid;
     grid-template-areas:
-      "numWaiting avgTime"
+      "numWaiting numWaiting"
       "hero hero"
       "numSel controls"
       "nums nums";

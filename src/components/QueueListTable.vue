@@ -59,7 +59,7 @@
       <tbody>
         <tr v-for="queueNum in filteredList" :key="queueNum.num">
           <td>{{ queueNum.num }}</td>
-          <td>{{ getStage(queueNum.stage) }}</td>
+          <td>{{ getStage(queueNum.stage, queueNum.timestamps) }}</td>
           <td></td>
         </tr>
       </tbody>
@@ -100,7 +100,25 @@ export default {
     },
   },
   methods: {
-    getStage(stage) {
+    getStage(stage, timestamps) {
+      if (stage === -1) {
+        console.log((timestamps));
+        const stationNames = [
+          "post",
+          "vaccination",
+          "screening",
+          "counseling",
+          "vitals",
+          "registration",
+        ];
+
+        for( var x=0; x<stationNames.length; x++ ){
+          console.log( stationNames[x], timestamps[stationNames[x]])
+          if( timestamps[stationNames[x]] != null ){
+            console.log("REJECTED THIS THING")
+            return `Rejected at ${stationNames[x - 1]}`}}
+      }
+
       const actualStage = stage + 1;
       const stages = [
         "Rejected",
@@ -119,6 +137,7 @@ export default {
         "Post-Vaccination",
         "Done",
       ];
+
       return stages[actualStage];
     },
   },
